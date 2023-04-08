@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "chip8.h"
@@ -14,6 +15,8 @@ unsigned int g_delay = 0;
 static const char *DEST_ADDR_OOR = "Destination address is out of range";
 static const char *DEST_ADDR_SELF =
     "Self-destination address will result in an infinite loop";
+
+static const size_t FONT_HEIGHT = 5;
 
 static inline void handle_error(
     const char *message, const uint16_t bad_address, const uint16_t instruction
@@ -374,6 +377,7 @@ static void execute_ennn(chip8_t *c8, const uint16_t instruction)
 
 static void execute_fx07(chip8_t *c8, const uint16_t instruction)
 {
+    // Vx = delay timer
     if ((instruction & 0x00f0) != 0x0000)
     {
         undefined_instruction(c8, instruction);
@@ -385,25 +389,20 @@ static void execute_fx07(chip8_t *c8, const uint16_t instruction)
 
 static void execute_fx0a(chip8_t *c8, const uint16_t instruction)
 {
+    // Wait for key press
     if ((instruction & 0x00f0) != 0x0000)
     {
         undefined_instruction(c8, instruction);
     }
-    while (1)
-    {
-        pthread_mutex_lock(&g_key_mutex);
-        if (g_keystate)
-        {
-            c8->V[(instruction & 0x0f00) >> 8] = g_last_pressed;
-            pthread_mutex_unlock(&g_key_mutex);
-            return;
-        }
-        pthread_mutex_unlock(&g_key_mutex);
-    }
+    pthread_mutex_lock(&g_key_mutex);
+    pthread_cond_wait(&g_key_cond, &g_key_mutex);
+    c8->V[(instruction & 0x0f00) >> 8] = g_key_released;
+    pthread_mutex_unlock(&g_key_mutex);
 }
 
 static void execute_fx15(chip8_t *c8, const uint16_t instruction)
 {
+    // Delay timer = Vx
     if ((instruction & 0x00f0) != 0x0010)
     {
         undefined_instruction(c8, instruction);
@@ -415,6 +414,7 @@ static void execute_fx15(chip8_t *c8, const uint16_t instruction)
 
 static void execute_fx18(chip8_t *c8, const uint16_t instruction)
 {
+    // Sound timer = Vx
     if ((instruction & 0x00f0) != 0x0010)
     {
         undefined_instruction(c8, instruction);
@@ -426,48 +426,67 @@ static void execute_fx18(chip8_t *c8, const uint16_t instruction)
 
 static void execute_fx1e(chip8_t *c8, const uint16_t instruction)
 {
+    // I += Vx
     if ((instruction & 0x00f0) != 0x0010)
     {
         undefined_instruction(c8, instruction);
     }
-    (void)c8;
-    (void)instruction;
+    c8->I += c8->V[(instruction & 0x0f00) >> 8];
 }
 
 static void execute_fx29(chip8_t *c8, const uint16_t instruction)
 {
+    // I = sprite address
     if ((instruction & 0x00f0) != 0x0020)
     {
         undefined_instruction(c8, instruction);
     }
-    (void)c8;
-    (void)instruction;
+    c8->I =
+        FONT_START +
+        FONT_HEIGHT*(c8->V[(instruction & 0x0f00) >> 8] & 0x0f);
 }
 
 static void execute_fx33(chip8_t *c8, const uint16_t instruction)
 {
+    // Store Vx in binary-coded decimal
     if ((instruction & 0x00f0) != 0x0030)
     {
         undefined_instruction(c8, instruction);
     }
-    (void)c8;
-    (void)instruction;
+    uint8_t x = c8->V[(instruction & 0x0f00) >> 8];
+    c8->memory[c8->I+2] = (x % 10);
+    x /= 10;
+    c8->memory[c8->I+1] = (x % 10);
+    x /= 10;
+    c8->memory[c8->I] = (x % 10);
 }
 
 static void execute_fx55(chip8_t *c8, const uint16_t instruction)
 {
+    // Store registers
     if ((instruction & 0x00f0) != 0x0050)
     {
         undefined_instruction(c8, instruction);
     }
+    const uint16_t num_registers = (((instruction & 0x0f00) >> 8) + 1);
+    memcpy(&c8->memory[c8->I], c8->V, num_registers);
+#ifdef LEGACY
+    c8->I += num_registers;
+#endif
 }
 
 static void execute_fx65(chip8_t *c8, const uint16_t instruction)
 {
+    // Load registers
     if ((instruction & 0x00f0) != 0x0060)
     {
         undefined_instruction(c8, instruction);
     }
+    const uint16_t num_registers = (((instruction & 0x0f00) >> 8) + 1);
+    memcpy(c8->V, &c8->memory[c8->I], num_registers);
+#ifdef LEGACY
+    c8->I += num_registers;
+#endif
 }
 
 static void (* const g_execute_fxn5[16])(chip8_t*, const uint16_t) = 
@@ -577,7 +596,7 @@ void *chip8_fn(__attribute__ ((unused)) void *p)
 
     while (!g_timer_start);
 
-    //run(&c8);
+    run(&c8);
 
     pthread_exit(NULL);
 }

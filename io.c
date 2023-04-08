@@ -32,7 +32,7 @@ pthread_mutex_t g_display_mutex = {0};
 /* Key input */
 #define KEYMAP_SIZE 123
 uint16_t g_keystate = 0;
-uint8_t g_last_pressed = 0xff; // to arbitrate multiple inputs
+uint8_t g_key_released = 0xff;
 static uint8_t g_keymap[KEYMAP_SIZE] = {0};
 const uint16_t g_bit16[16] =
 {
@@ -42,6 +42,7 @@ const uint16_t g_bit16[16] =
     0x1000, 0x2000, 0x4000, 0x8000,
 };
 pthread_mutex_t g_key_mutex = {0};
+pthread_cond_t g_key_cond = {0};
 
 /* Timers */
 volatile uint8_t g_timer_start = 0;
@@ -100,7 +101,7 @@ uint8_t draw_sprite(
     size_t row,
     size_t col,
     const uint8_t *sprite_address,
-    const size_t sprite_size
+    const size_t sprite_height
 )
 {
     // Implements full wrap
@@ -109,7 +110,7 @@ uint8_t draw_sprite(
 
     uint8_t collision = 0;
     pthread_mutex_lock(&g_display_mutex);
-    for (size_t i = 0; i < sprite_size; i++)
+    for (size_t i = 0; i < sprite_height; i++)
     {
         if ((row+i) > DISPLAY_HEIGHT) break;
         uint8_t line = sprite_address[i];
@@ -151,7 +152,7 @@ static void benchmark_draw_sprite(
     struct timespec *before,
     struct timespec *after,
     const uint8_t *sprite_address,
-    const size_t sprite_size,
+    const size_t sprite_height,
     const char *target_name
 )
 {
@@ -159,7 +160,7 @@ static void benchmark_draw_sprite(
     {
         clear_display();
         clock_gettime(clock_id, before);
-        draw_sprite(0, 0, sprite_address, sprite_size);
+        draw_sprite(0, 0, sprite_address, sprite_height);
         clock_gettime(clock_id, after);
         printf(
             "%s draw time: %ld ns\n",
@@ -277,22 +278,21 @@ void io_init()
 #endif
 }
 
-static inline void update_key_state(const uint8_t key, const int down)
+static void update_key_state(const uint8_t key, const int down)
 {
     // Update bit in g_keystate bitmap (down: 1, up: 0)
+    pthread_mutex_lock(&g_key_mutex);
     if (down)
     {
-        pthread_mutex_lock(&g_key_mutex);
         g_keystate |= g_bit16[key];
-        g_last_pressed = key;
-        pthread_mutex_unlock(&g_key_mutex);
     }
     else
     {
-        pthread_mutex_lock(&g_key_mutex);
         g_keystate &= ~g_bit16[key];
-        pthread_mutex_unlock(&g_key_mutex);
+        g_key_released = key;
+        pthread_cond_signal(&g_key_cond);
     }
+    pthread_mutex_unlock(&g_key_mutex);
 }
 
 void io_loop()
