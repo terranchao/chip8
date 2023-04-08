@@ -22,6 +22,7 @@ target_compile_options(chip8
 PRIVATE
     -fstack-protector-all
     -Wall
+    -Werror
     -Wextra
     -Wpedantic
 )
