@@ -21,8 +21,8 @@ extern pthread_mutex_t g_display_mutex;
 extern uint16_t g_keystate;
 extern uint8_t g_key_released;
 extern const uint16_t g_bit16[16];
-extern pthread_mutex_t g_key_mutex;
-extern pthread_cond_t g_key_cond;
+extern pthread_mutex_t g_input_mutex;
+extern pthread_cond_t g_input_cond;
 
 /* Timers */
 extern volatile uint8_t g_timer_start;

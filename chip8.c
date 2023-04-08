@@ -166,18 +166,21 @@ static void execute_8xy1(chip8_t *c8, const uint16_t instruction)
 {
     // Vx |= Vy
     c8->V[(instruction & 0x0f00) >> 8] |= c8->V[(instruction & 0x00f0) >> 4];
+    c8->V[0xf] = 0x00;
 }
 
 static void execute_8xy2(chip8_t *c8, const uint16_t instruction)
 {
     // Vx &= Vy
     c8->V[(instruction & 0x0f00) >> 8] &= c8->V[(instruction & 0x00f0) >> 4];
+    c8->V[0xf] = 0x00;
 }
 
 static void execute_8xy3(chip8_t *c8, const uint16_t instruction)
 {
     // Vx ^= Vy
     c8->V[(instruction & 0x0f00) >> 8] ^= c8->V[(instruction & 0x00f0) >> 4];
+    c8->V[0xf] = 0x00;
 }
 
 static void execute_8xy4(chip8_t *c8, const uint16_t instruction)
@@ -193,24 +196,26 @@ static void execute_8xy5(chip8_t *c8, const uint16_t instruction)
 {
     // Vx -= Vy
     const uint8_t x = ((instruction & 0x0f00) >> 8);
-    const uint8_t y = ((instruction & 0x00f0) >> 4);
-    c8->V[0xf] = (c8->V[x] > c8->V[y]) ? 1 : 0;
-    c8->V[x] -= c8->V[y];
+    const uint8_t before = c8->V[x];
+    c8->V[x] -= c8->V[(instruction & 0x00f0) >> 4];
+    c8->V[0xf] = (c8->V[x] > before) ? 0 : 1;
 }
 
 static void execute_8xy6(chip8_t *c8, const uint16_t instruction)
 {
-#ifdef LEGACY
+#ifdef CHIP8
     // Vx = (Vy >>= 1)
     const uint8_t y = ((instruction & 0x00f0) >> 4);
-    c8->V[0xf] = (c8->V[y] & 0x01);
+    const uint8_t flag = (c8->V[y] & 0x01);
     c8->V[y] >>= 1;
     c8->V[(instruction & 0x0f00) >> 8] = c8->V[y];
+    c8->V[0xf] = flag;
 #else
     // Vx >>= 1
     const uint8_t x = ((instruction & 0x0f00) >> 8);
-    c8->V[0xf] = (c8->V[x] & 0x01);
+    const uint8_t flag = (c8->V[x] & 0x01);
     c8->V[x] >>= 1;
+    c8->V[0xf] = flag;
 #endif
 }
 
@@ -219,23 +224,25 @@ static void execute_8xy7(chip8_t *c8, const uint16_t instruction)
     // Vx = (Vy - Vx)
     const uint8_t x = ((instruction & 0x0f00) >> 8);
     const uint8_t y = ((instruction & 0x00f0) >> 4);
-    c8->V[0xf] = (c8->V[y] > c8->V[x]) ? 1 : 0;
     c8->V[x] = (c8->V[y] - c8->V[x]);
+    c8->V[0xf] = (c8->V[x] > c8->V[y]) ? 0 : 1;
 }
 
 static void execute_8xye(chip8_t *c8, const uint16_t instruction)
 {
-#ifdef LEGACY
+#ifdef CHIP8
     // Vx = (Vy <<= 1)
     const uint8_t y = ((instruction & 0x00f0) >> 4);
-    c8->V[0xf] = ((c8->V[y] & 0x80) >> 7);
+    const uint8_t flag = ((c8->V[y] & 0x80) >> 7);
     c8->V[y] <<= 1;
     c8->V[(instruction & 0x0f00) >> 8] = c8->V[y];
+    c8->V[0xf] = flag;
 #else
     // Vx <<= 1
     const uint8_t x = ((instruction & 0x0f00) >> 8);
-    c8->V[0xf] = ((c8->V[x] & 0x80) >> 7);
+    const uint8_t flag = ((c8->V[x] & 0x80) >> 7);
     c8->V[x] <<= 1;
+    c8->V[0xf] = flag;
 #endif
 }
 
@@ -283,13 +290,13 @@ static void execute_annn(chip8_t *c8, const uint16_t instruction)
 
 static void execute_bnnn(chip8_t *c8, const uint16_t instruction)
 {
-#if SUPER
-    // Jump to address + V
-    const uint16_t address =
-        c8->V[(instruction & 0x0f00) >> 8] + (instruction & 0x0fff);
-#else
+#ifdef CHIP8
     // Jump to address + V0
     const uint16_t address = c8->V[0x0] + (instruction & 0x0fff);
+#else
+    // Jump to address + Vx
+    const uint16_t address =
+        c8->V[(instruction & 0x0f00) >> 8] + (instruction & 0x0fff);
 #endif
     if ((address < PROGRAM_START) || (address >= MEMORY_SIZE))
     {
@@ -327,12 +334,12 @@ static void execute_ex9e(chip8_t *c8, const uint16_t instruction)
     {
         undefined_instruction(c8, instruction);
     }
-    pthread_mutex_lock(&g_key_mutex);
+    pthread_mutex_lock(&g_input_mutex);
     if (g_keystate & g_bit16[c8->V[(instruction & 0x0f00) >> 8]])
     {
         c8->program_counter += 2;
     }
-    pthread_mutex_unlock(&g_key_mutex);
+    pthread_mutex_unlock(&g_input_mutex);
 }
 
 static void execute_exa1(chip8_t *c8, const uint16_t instruction)
@@ -342,12 +349,12 @@ static void execute_exa1(chip8_t *c8, const uint16_t instruction)
     {
         undefined_instruction(c8, instruction);
     }
-    pthread_mutex_lock(&g_key_mutex);
+    pthread_mutex_lock(&g_input_mutex);
     if (!(g_keystate & g_bit16[c8->V[(instruction & 0x0f00) >> 8]]))
     {
         c8->program_counter += 2;
     }
-    pthread_mutex_unlock(&g_key_mutex);
+    pthread_mutex_unlock(&g_input_mutex);
 }
 
 static void (* const g_execute_exnn[16])(chip8_t*, const uint16_t) = 
@@ -394,10 +401,10 @@ static void execute_fx0a(chip8_t *c8, const uint16_t instruction)
     {
         undefined_instruction(c8, instruction);
     }
-    pthread_mutex_lock(&g_key_mutex);
-    pthread_cond_wait(&g_key_cond, &g_key_mutex);
+    pthread_mutex_lock(&g_input_mutex);
+    pthread_cond_wait(&g_input_cond, &g_input_mutex);
     c8->V[(instruction & 0x0f00) >> 8] = g_key_released;
-    pthread_mutex_unlock(&g_key_mutex);
+    pthread_mutex_unlock(&g_input_mutex);
 }
 
 static void execute_fx15(chip8_t *c8, const uint16_t instruction)
@@ -470,7 +477,7 @@ static void execute_fx55(chip8_t *c8, const uint16_t instruction)
     }
     const uint16_t num_registers = (((instruction & 0x0f00) >> 8) + 1);
     memcpy(&c8->memory[c8->I], c8->V, num_registers);
-#ifdef LEGACY
+#ifdef CHIP8
     c8->I += num_registers;
 #endif
 }
@@ -484,7 +491,7 @@ static void execute_fx65(chip8_t *c8, const uint16_t instruction)
     }
     const uint16_t num_registers = (((instruction & 0x0f00) >> 8) + 1);
     memcpy(c8->V, &c8->memory[c8->I], num_registers);
-#ifdef LEGACY
+#ifdef CHIP8
     c8->I += num_registers;
 #endif
 }
@@ -596,7 +603,15 @@ void *chip8_fn(__attribute__ ((unused)) void *p)
 
     while (!g_timer_start);
 
+#ifdef DEBUG
+    printf("%s start run\n", __func__);
+#endif
+
     run(&c8);
+
+#ifdef DEBUG
+    printf("%s exit\n", __func__);
+#endif
 
     pthread_exit(NULL);
 }

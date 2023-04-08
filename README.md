@@ -103,15 +103,21 @@ features.
     ```
 
 
-## Testing
-
-### Unit Tests
+## Unit Tests
 
 TODO
 
-### Tested ROMs
+## ROMs
 
-- https://github.com/Timendus/chip8-test-suite
+### Testing
+
+https://github.com/Timendus/chip8-test-suite
+
+This interpreter follows as closely as possible the "quirks" of the original
+CHIP-8 variant that ran on the
+[COSMAC VIP](https://en.wikipedia.org/wiki/COSMAC_VIP).
+
+### Games
 
 ## References
 

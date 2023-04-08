@@ -12,11 +12,7 @@ char *g_romfile = NULL;
 const uint16_t PROGRAM_START = 0x200;
 static const unsigned long MAX_PROGRAM_SIZE = MEMORY_SIZE - PROGRAM_START;
 
-#ifdef LEGACY
-const size_t FONT_START = 0x000;
-#else
 const size_t FONT_START = 0x050;
-#endif
 
 static const uint8_t g_font[] =
 {

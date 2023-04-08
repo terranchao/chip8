@@ -41,8 +41,8 @@ const uint16_t g_bit16[16] =
     0x0100, 0x0200, 0x0400, 0x0800,
     0x1000, 0x2000, 0x4000, 0x8000,
 };
-pthread_mutex_t g_key_mutex = {0};
-pthread_cond_t g_key_cond = {0};
+pthread_mutex_t g_input_mutex = {0};
+pthread_cond_t g_input_cond = {0};
 
 /* Timers */
 volatile uint8_t g_timer_start = 0;
@@ -278,23 +278,6 @@ void io_init()
 #endif
 }
 
-static void update_key_state(const uint8_t key, const int down)
-{
-    // Update bit in g_keystate bitmap (down: 1, up: 0)
-    pthread_mutex_lock(&g_key_mutex);
-    if (down)
-    {
-        g_keystate |= g_bit16[key];
-    }
-    else
-    {
-        g_keystate &= ~g_bit16[key];
-        g_key_released = key;
-        pthread_cond_signal(&g_key_cond);
-    }
-    pthread_mutex_unlock(&g_key_mutex);
-}
-
 void io_loop()
 {
     while (1)
@@ -308,9 +291,22 @@ void io_loop()
                 (g_keymap[e.key.keysym.sym] < 16)
             )
             {
-                update_key_state(
-                    g_keymap[e.key.keysym.sym], (e.type == SDL_KEYDOWN)
-                );
+                /* Keypad */
+                if (e.type == SDL_KEYDOWN)
+                {
+                    pthread_mutex_lock(&g_input_mutex);
+                    g_keystate |= g_bit16[g_keymap[e.key.keysym.sym]];
+                    pthread_mutex_unlock(&g_input_mutex);
+                }
+                else
+                {
+                    // e.type == SDL_KEYUP
+                    pthread_mutex_lock(&g_input_mutex);
+                    g_keystate &= ~g_bit16[g_keymap[e.key.keysym.sym]];
+                    g_key_released = g_keymap[e.key.keysym.sym];
+                    pthread_cond_signal(&g_input_cond);
+                    pthread_mutex_unlock(&g_input_mutex);
+                }
 #ifdef DEBUG
                 printf("%X %d | g_keystate: %04x\n",
                     g_keymap[e.key.keysym.sym],
@@ -324,6 +320,7 @@ void io_loop()
                 (e.type == SDL_QUIT)
             )
             {
+                /* Quit */
                 g_done = 1;
                 return;
             }
@@ -333,6 +330,9 @@ void io_loop()
 
 void io_quit()
 {
+#ifdef DEBUG
+    printf("Entered %s\n", __func__);
+#endif
     if (g_framebuffer)
     {
         free(g_framebuffer);
@@ -383,5 +383,8 @@ void *timer_fn(__attribute__ ((unused)) void *p)
 #endif
         nanosleep(&sleep, NULL);
     }
+#ifdef DEBUG
+    printf("%s exit\n", __func__);
+#endif
     pthread_exit(NULL);
 }
