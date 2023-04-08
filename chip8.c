@@ -18,7 +18,7 @@ static const char *DEST_ADDR_SELF =
 
 static const size_t FONT_HEIGHT = 5;
 
-static inline void handle_error(
+static void handle_error(
     const char *message, const uint16_t bad_address, const uint16_t instruction
 )
 {
@@ -29,7 +29,9 @@ static inline void handle_error(
     exit(EXIT_FAILURE);
 }
 
-static void undefined_instruction(chip8_t *c8, const uint16_t instruction)
+static void undefined_instruction(
+    chip8_t *c8, const uint16_t instruction
+)
 {
     handle_error(
         "Encountered undefined instruction",

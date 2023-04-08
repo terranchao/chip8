@@ -356,6 +356,16 @@ void io_quit()
     SDL_Quit();
 }
 
+static void update_timers()
+{
+    pthread_mutex_lock(&g_timer_mutex);
+    if (g_delay_timer > 0)
+        g_delay_timer--;
+    if (g_sound_timer > 0)
+        g_sound_timer--;
+    pthread_mutex_unlock(&g_timer_mutex);
+}
+
 void *timer_fn(__attribute__ ((unused)) void *p)
 {
     g_timer_start = 1;
@@ -366,12 +376,7 @@ void *timer_fn(__attribute__ ((unused)) void *p)
     {
         clock_gettime(clock_id, &before);
         update_display();
-        pthread_mutex_lock(&g_timer_mutex);
-        if (g_delay_timer > 0)
-            g_delay_timer--;
-        if (g_sound_timer > 0)
-            g_sound_timer--;
-        pthread_mutex_unlock(&g_timer_mutex);
+        update_timers();
         clock_gettime(clock_id, &after);
         long remaining_ns =
             period_ns + (before.tv_sec - after.tv_sec) * 1000000000 +

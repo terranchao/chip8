@@ -34,7 +34,7 @@ static const uint8_t g_font[] =
     0xf0, 0x80, 0xf0, 0x80, 0x80, // F
 };
 
-static inline void handle_fatal_error(FILE *fp)
+static void handle_fatal_error(FILE *fp)
 {
     if (fp) fclose(fp);
     exit(EXIT_FAILURE);
