@@ -16,6 +16,7 @@ extern uint8_t draw_sprite(
     const size_t sprite_size
 );
 extern pthread_mutex_t g_display_mutex;
+extern pthread_cond_t g_display_cond;
 
 /* Key input */
 extern uint16_t g_keystate;

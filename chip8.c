@@ -479,9 +479,7 @@ static void execute_fx55(chip8_t *c8, const uint16_t instruction)
     }
     const uint16_t num_registers = (((instruction & 0x0f00) >> 8) + 1);
     memcpy(&c8->memory[c8->I], c8->V, num_registers);
-#ifdef CHIP8
     c8->I += num_registers;
-#endif
 }
 
 static void execute_fx65(chip8_t *c8, const uint16_t instruction)
@@ -493,9 +491,7 @@ static void execute_fx65(chip8_t *c8, const uint16_t instruction)
     }
     const uint16_t num_registers = (((instruction & 0x0f00) >> 8) + 1);
     memcpy(c8->V, &c8->memory[c8->I], num_registers);
-#ifdef CHIP8
     c8->I += num_registers;
-#endif
 }
 
 static void (* const g_execute_fxn5[16])(chip8_t*, const uint16_t) = 

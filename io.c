@@ -28,6 +28,7 @@ static const size_t SPRITE_WIDTH = 8;
 static const uint32_t COLOR_UNSET = 0x00000000;
 static const uint32_t COLOR_SET = 0xffffffff;
 pthread_mutex_t g_display_mutex = {0};
+pthread_cond_t g_display_cond = {0};
 
 /* Key input */
 #define KEYMAP_SIZE 123
@@ -59,6 +60,7 @@ static const clockid_t clock_id = CLOCK_MONOTONIC;
 void clear_display()
 {
     pthread_mutex_lock(&g_display_mutex);
+    pthread_cond_wait(&g_display_cond, &g_display_mutex);
     memset(g_framebuffer, 0, g_buffer_size);
     pthread_mutex_unlock(&g_display_mutex);
 }
@@ -72,6 +74,7 @@ static void update_display()
         g_framebuffer,
         g_width_in_bytes
     );
+    pthread_cond_signal(&g_display_cond);
     pthread_mutex_unlock(&g_display_mutex);
     SDL_RenderClear(g_renderer);
     SDL_RenderCopy(g_renderer, g_texture, NULL, NULL);
@@ -104,12 +107,13 @@ uint8_t draw_sprite(
     const size_t sprite_height
 )
 {
-    // Implements full wrap
+    // Implements full sprite wrap
     row %= DISPLAY_HEIGHT;
     col %= DISPLAY_WIDTH;
 
     uint8_t collision = 0;
     pthread_mutex_lock(&g_display_mutex);
+    pthread_cond_wait(&g_display_cond, &g_display_mutex);
     for (size_t i = 0; i < sprite_height; i++)
     {
         if ((row+i) > DISPLAY_HEIGHT) break;
@@ -124,53 +128,6 @@ uint8_t draw_sprite(
     pthread_mutex_unlock(&g_display_mutex);
     return collision;
 }
-
-#ifdef DEBUG
-static void benchmark_render(
-    const size_t iterations,
-    struct timespec *before,
-    struct timespec *after,
-    const char *target_name
-)
-{
-    for (size_t i = 0; i < iterations; i++)
-    {
-        clock_gettime(clock_id, before);
-        update_display();
-        clock_gettime(clock_id, after);
-        printf(
-            "%s render time: %ld ns\n",
-            target_name,
-            ((after->tv_sec - before->tv_sec) * 1000000000 +
-            (after->tv_nsec - before->tv_nsec))
-        );
-    }
-}
-
-static void benchmark_draw_sprite(
-    const size_t iterations,
-    struct timespec *before,
-    struct timespec *after,
-    const uint8_t *sprite_address,
-    const size_t sprite_height,
-    const char *target_name
-)
-{
-    for (size_t i = 0; i < iterations; i++)
-    {
-        clear_display();
-        clock_gettime(clock_id, before);
-        draw_sprite(0, 0, sprite_address, sprite_height);
-        clock_gettime(clock_id, after);
-        printf(
-            "%s draw time: %ld ns\n",
-            target_name,
-            ((after->tv_sec - before->tv_sec) * 1000000000 +
-            (after->tv_nsec - before->tv_nsec))
-        );
-    }
-}
-#endif
 
 static void handle_sdl_fatal(const char *message)
 {
@@ -243,39 +200,6 @@ void io_init()
     g_keymap[SDLK_x] = 0x0;
     g_keymap[SDLK_c] = 0xb;
     g_keymap[SDLK_v] = 0xf;
-    
-#ifdef DEBUG
-    uint8_t debug_collision;
-    struct timespec before, after;
-
-    for (size_t i = 0; i < DISPLAY_HEIGHT; i++)
-    {
-        for (size_t j = 0; j < DISPLAY_WIDTH; j++)
-        {
-            draw_pixel(i, j, ((i+j)%2), &debug_collision);
-        }
-    }
-    benchmark_render(40, &before, &after, "Grid");
-
-    uint8_t debug_sprite[] = {
-        0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80,
-        0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0x02,
-        0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x40, 0x20,
-        0x10, 0x08, 0x04, 0x02, 0x01, 0x02, 0x04, 0x08,
-    };
-    benchmark_draw_sprite(
-        20, &before, &after, debug_sprite, sizeof(debug_sprite), "Sprite"
-    );
-    benchmark_render(20, &before, &after, "Sprite");
-
-    uint8_t debug_invert[] = {
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-    };
-    draw_sprite(0, 0, debug_invert, sizeof(debug_invert));
-#endif
 }
 
 void io_loop()
@@ -393,3 +317,87 @@ void *timer_fn(__attribute__ ((unused)) void *p)
 #endif
     pthread_exit(NULL);
 }
+
+/*
+ * Dead code once used to test draw functions and timing
+ */
+#if 0
+static void benchmark_render(
+    const size_t iterations,
+    struct timespec *before,
+    struct timespec *after,
+    const char *target_name
+)
+{
+    for (size_t i = 0; i < iterations; i++)
+    {
+        clock_gettime(clock_id, before);
+        update_display();
+        clock_gettime(clock_id, after);
+        printf(
+            "%s render time: %ld ns\n",
+            target_name,
+            ((after->tv_sec - before->tv_sec) * 1000000000 +
+            (after->tv_nsec - before->tv_nsec))
+        );
+    }
+}
+
+static void benchmark_draw_sprite(
+    const size_t iterations,
+    struct timespec *before,
+    struct timespec *after,
+    const uint8_t *sprite_address,
+    const size_t sprite_height,
+    const char *target_name
+)
+{
+    for (size_t i = 0; i < iterations; i++)
+    {
+        clear_display();
+        clock_gettime(clock_id, before);
+        draw_sprite(0, 0, sprite_address, sprite_height);
+        clock_gettime(clock_id, after);
+        printf(
+            "%s draw time: %ld ns\n",
+            target_name,
+            ((after->tv_sec - before->tv_sec) * 1000000000 +
+            (after->tv_nsec - before->tv_nsec))
+        );
+    }
+}
+
+static void test_draw()
+{
+    uint8_t collision;
+    struct timespec before, after;
+
+    for (size_t i = 0; i < DISPLAY_HEIGHT; i++)
+    {
+        for (size_t j = 0; j < DISPLAY_WIDTH; j++)
+        {
+            draw_pixel(i, j, ((i+j)%2), &collision);
+        }
+    }
+    benchmark_render(40, &before, &after, "Grid");
+
+    uint8_t sprite[] = {
+        0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80,
+        0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0x02,
+        0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x40, 0x20,
+        0x10, 0x08, 0x04, 0x02, 0x01, 0x02, 0x04, 0x08,
+    };
+    benchmark_draw_sprite(
+        20, &before, &after, sprite, sizeof(sprite), "Sprite"
+    );
+    benchmark_render(20, &before, &after, "Sprite");
+
+    uint8_t invert[] = {
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+    };
+    draw_sprite(0, 0, invert, sizeof(invert));
+}
+#endif
