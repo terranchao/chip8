@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include <stdint.h>
 
-extern volatile uint8_t g_done;
+extern volatile uint8_t g_io_done;
 
 /* Display output */
 extern size_t g_pixel_scale;

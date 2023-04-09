@@ -10,6 +10,8 @@
 #include "io.h"
 #include "load.h"
 
+volatile uint8_t g_cpu_done = 0;
+
 unsigned int g_delay = 0;
 
 static const char *DEST_ADDR_OOR = "Destination address is out of range";
@@ -404,7 +406,10 @@ static void execute_fx0a(chip8_t *c8, const uint16_t instruction)
         undefined_instruction(c8, instruction);
     }
     pthread_mutex_lock(&g_input_mutex);
-    pthread_cond_wait(&g_input_cond, &g_input_mutex);
+    if (!g_io_done)
+    {
+        pthread_cond_wait(&g_input_cond, &g_input_mutex);
+    }
     c8->V[(instruction & 0x0f00) >> 8] = g_key_released;
     pthread_mutex_unlock(&g_input_mutex);
 }
@@ -566,7 +571,7 @@ static void (* const g_execute[16])(chip8_t*, const uint16_t) =
 
 static void run(chip8_t *c8)
 {
-    while (!g_done)
+    while (!g_io_done)
     {
         // Fetch
         const uint16_t instruction =
@@ -583,6 +588,7 @@ static void run(chip8_t *c8)
         // Decode/Execute
         (g_execute[(instruction & 0xf000) >> 12])(c8, instruction);
     }
+    g_cpu_done = 1;
 }
 
 void *chip8_fn(__attribute__ ((unused)) void *p)

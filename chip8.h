@@ -21,6 +21,8 @@ typedef struct
 
 } chip8_t;
 
+extern volatile uint8_t g_cpu_done;
+
 extern unsigned int g_delay;
 
 extern void *chip8_fn(void *p);

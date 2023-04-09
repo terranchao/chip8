@@ -10,9 +10,10 @@
 #include <stdio.h>
 #endif
 
+#include "chip8.h"
 #include "io.h"
 
-volatile uint8_t g_done = 0;
+volatile uint8_t g_io_done = 0;
 
 /* Display output */
 size_t g_pixel_scale = 0;
@@ -245,7 +246,10 @@ void io_loop()
             )
             {
                 /* Quit */
-                g_done = 1;
+                pthread_mutex_lock(&g_input_mutex);
+                g_io_done = 1;
+                pthread_cond_signal(&g_input_cond);
+                pthread_mutex_unlock(&g_input_mutex);
                 return;
             }
         }
@@ -254,9 +258,6 @@ void io_loop()
 
 void io_quit()
 {
-#ifdef DEBUG
-    printf("Entered %s\n", __func__);
-#endif
     if (g_framebuffer)
     {
         free(g_framebuffer);
@@ -278,6 +279,9 @@ void io_quit()
         g_window = NULL;
     }
     SDL_Quit();
+#ifdef DEBUG
+    printf("%s\n", __func__);
+#endif
 }
 
 static void update_timers()
@@ -296,7 +300,7 @@ void *timer_fn(__attribute__ ((unused)) void *p)
 
     const long period_ns = 16666667; // ~60Hz
     struct timespec before, after, sleep;
-    while (!g_done)
+    while (!g_cpu_done)
     {
         clock_gettime(clock_id, &before);
         update_display();
