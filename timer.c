@@ -5,6 +5,7 @@
  * - Decrement the internal system timers.
  */
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
 #include <pthread.h>
 #include <stdint.h>
 #ifdef DEBUG
@@ -50,7 +51,14 @@ static void update_timers()
     if (g_delay_timer > 0)
         g_delay_timer--;
     if (g_sound_timer > 0)
+    {
+        SDL_PauseAudioDevice(g_audio_device_id, 0);
         g_sound_timer--;
+    }
+    else
+    {
+        SDL_PauseAudioDevice(g_audio_device_id, 1);
+    }
     pthread_mutex_unlock(&g_timer_mutex);
 }
 

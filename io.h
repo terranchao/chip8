@@ -22,6 +22,9 @@ extern const uint16_t g_bit16[16];
 extern pthread_mutex_t g_input_mutex;
 extern pthread_cond_t g_input_cond;
 
+/* Sound */
+extern SDL_AudioDeviceID g_audio_device_id;
+
 extern volatile uint8_t g_io_done;
 extern void io_init();
 extern void io_loop();

@@ -18,6 +18,7 @@ add_executable(chip8
 
 target_link_libraries(chip8
     -lSDL2
+    -lm
 )
 
 target_compile_options(chip8

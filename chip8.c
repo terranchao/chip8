@@ -434,8 +434,10 @@ static void execute_fx18(chip8_t *c8, const uint16_t instruction)
     {
         undefined_instruction(c8, instruction);
     }
+    const uint8_t duration = c8->V[(instruction & 0x0f00) >> 8];
+    if (duration < 0x02) return;
     pthread_mutex_lock(&g_timer_mutex);
-    g_sound_timer = c8->V[(instruction & 0x0f00) >> 8];
+    g_sound_timer = duration;
     pthread_mutex_unlock(&g_timer_mutex);
 }
 

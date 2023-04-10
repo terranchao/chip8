@@ -1,12 +1,14 @@
 /*
  * The functions in this file run in the main "I/O" thread. This thread is
- * responsible for initializing and cleaning up all of the aspects of the user
- * interface, including the application window and the display inside of it.
- * The remainder (and majority) of its time is spent polling for key input from
- * the user. Valid key input events signal the chip8 "CPU" thread, which then
- * processes those events.
+ * responsible for handling the user interface, including the application
+ * window, the display, and sound. The remainder (and majority) of its time is
+ * spent polling for key input from the user. Valid key input events signal the
+ * chip8 "CPU" thread, which then processes those events. All of these features
+ * are made possible by the SDL development library.
  */
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
+#include <math.h>
 #include <pthread.h>
 #include <stdint.h>
 #ifdef DEBUG
@@ -47,6 +49,13 @@ const uint16_t g_bit16[16] =
 pthread_mutex_t g_input_mutex = {0};
 pthread_cond_t g_input_cond = {0};
 
+/* Sound */
+SDL_AudioDeviceID g_audio_device_id = {0};
+static uint64_t g_samples_played = 0;
+static const float SOUND_VOLUME = 0.05;
+static const float SOUND_FREQUENCY = 300.0;
+static const float SOUND_SAMPLE_RATE = 44100.0;
+
 static void handle_sdl_fatal(const char *message)
 {
     SDL_LogError(
@@ -57,15 +66,34 @@ static void handle_sdl_fatal(const char *message)
     exit(EXIT_FAILURE);
 }
 
+void audio_callback(
+    __attribute__ ((unused)) void *user_data,
+    uint8_t *stream,
+    int num_bytes
+)
+{
+    float *fstream = (float*)(stream);
+    size_t num_samples = (num_bytes/8); // 2 floats
+    for(size_t i = 0; i < num_samples; ++i)
+    {
+        const double x =
+            2.0 * M_PI * SOUND_FREQUENCY *
+            (g_samples_played + i) / SOUND_SAMPLE_RATE;
+        fstream[2*i + 0] = SOUND_VOLUME * sin(x); // L
+        fstream[2*i + 1] = SOUND_VOLUME * sin(x); // R
+    }
+    g_samples_played += num_samples;
+}
+
 void io_init()
 {
     g_buffer_size = DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(uint32_t);
     g_framebuffer = (uint32_t*)malloc(g_buffer_size);
     g_width_in_bytes = DISPLAY_WIDTH * sizeof(uint32_t);
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO) < 0)
     {
-        handle_sdl_fatal("Unable to initialize video");
+        handle_sdl_fatal("Unable to initialize");
     }
     g_window = SDL_CreateWindow(
         "A CHIP-8 Interpreter",
@@ -118,6 +146,24 @@ void io_init()
     g_keymap[SDLK_x] = 0x0;
     g_keymap[SDLK_c] = 0xb;
     g_keymap[SDLK_v] = 0xf;
+    
+    SDL_AudioSpec audio_spec_want = {0}, audio_spec;
+    audio_spec_want.freq     = (int)SOUND_SAMPLE_RATE;
+    audio_spec_want.format   = AUDIO_F32;
+    audio_spec_want.channels = 2;
+    audio_spec_want.samples  = 512;
+    audio_spec_want.callback = audio_callback;
+    g_audio_device_id = SDL_OpenAudioDevice(
+        NULL,
+        0,
+        &audio_spec_want,
+        &audio_spec,
+        SDL_AUDIO_ALLOW_FORMAT_CHANGE
+    );
+    if (!g_audio_device_id)
+    {
+        handle_sdl_fatal("Unable to open audio device");
+    }
 }
 
 void io_loop()
@@ -175,6 +221,7 @@ void io_loop()
 
 void io_quit()
 {
+    SDL_CloseAudioDevice(g_audio_device_id);
     if (g_framebuffer)
     {
         free(g_framebuffer);
