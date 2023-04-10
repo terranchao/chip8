@@ -1,4 +1,7 @@
-
+/*
+ * The functions in this file implement the CHIP-8 instruction set and the chip8
+ * "CPU" thread.
+ */
 #include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -7,8 +10,10 @@
 #include <time.h>
 
 #include "chip8.h"
+#include "display.h"
 #include "io.h"
 #include "load.h"
+#include "timer.h"
 
 volatile uint8_t g_cpu_done = 0;
 
@@ -17,8 +22,6 @@ unsigned int g_delay = 0;
 static const char *DEST_ADDR_OOR = "Destination address is out of range";
 static const char *DEST_ADDR_SELF =
     "Self-destination address will result in an infinite loop";
-
-static const size_t FONT_HEIGHT = 5;
 
 static void handle_error(
     const char *message, const uint16_t bad_address, const uint16_t instruction
@@ -31,9 +34,7 @@ static void handle_error(
     exit(EXIT_FAILURE);
 }
 
-static void undefined_instruction(
-    chip8_t *c8, const uint16_t instruction
-)
+static void undefined_instruction(chip8_t *c8, const uint16_t instruction)
 {
     handle_error(
         "Encountered undefined instruction",
@@ -457,7 +458,7 @@ static void execute_fx29(chip8_t *c8, const uint16_t instruction)
     }
     c8->I =
         FONT_START +
-        FONT_HEIGHT*(c8->V[(instruction & 0x0f00) >> 8] & 0x0f);
+        5*(c8->V[(instruction & 0x0f00) >> 8] & 0x0f);
 }
 
 static void execute_fx33(chip8_t *c8, const uint16_t instruction)
@@ -579,7 +580,7 @@ static void run(chip8_t *c8)
             c8->memory[c8->program_counter+1];
 
 #ifdef DEBUG
-        printf("Memory[0x%03x]: 0x%04x\n", c8->program_counter, instruction);
+        printf("MEM[0x%03x]: 0x%04x\n", c8->program_counter, instruction);
 #endif
 
         // Advance program counter

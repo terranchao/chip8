@@ -1,4 +1,8 @@
-
+/*
+ * This file contains the code that is responsible for loading the font graphic
+ * data and the CHIP-8 program instructions into interpreter memory. This is run
+ * once at the beginning of the chip8 "CPU" thread.
+ */
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,10 +13,9 @@
 
 char *g_romfile = NULL;
 
+const size_t FONT_START = 0x050;
 const uint16_t PROGRAM_START = 0x200;
 static const unsigned long MAX_PROGRAM_SIZE = MEMORY_SIZE - PROGRAM_START;
-
-const size_t FONT_START = 0x050;
 
 static const uint8_t g_font[] =
 {

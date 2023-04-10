@@ -1,22 +1,19 @@
 #ifndef IO_H
 #define IO_H
 
+#include <SDL2/SDL.h>
 #include <pthread.h>
 #include <stdint.h>
 
-extern volatile uint8_t g_io_done;
-
-/* Display output */
+/* Display */
 extern size_t g_pixel_scale;
-extern void clear_display();
-extern uint8_t draw_sprite(
-    size_t row,
-    size_t col,
-    const uint8_t *sprite_address,
-    const size_t sprite_size
-);
-extern pthread_mutex_t g_display_mutex;
-extern pthread_cond_t g_display_cond;
+extern SDL_Renderer *g_renderer;
+extern SDL_Texture *g_texture;
+extern uint32_t *g_framebuffer;
+extern size_t g_buffer_size;
+extern size_t g_width_in_bytes;
+extern const size_t DISPLAY_WIDTH;
+extern const size_t DISPLAY_HEIGHT;
 
 /* Key input */
 extern uint16_t g_keystate;
@@ -25,13 +22,7 @@ extern const uint16_t g_bit16[16];
 extern pthread_mutex_t g_input_mutex;
 extern pthread_cond_t g_input_cond;
 
-/* Timers */
-extern volatile uint8_t g_timer_start;
-extern uint8_t g_delay_timer;
-extern uint8_t g_sound_timer;
-extern pthread_mutex_t g_timer_mutex;
-extern void *timer_fn(void *p);
-
+extern volatile uint8_t g_io_done;
 extern void io_init();
 extern void io_loop();
 extern void io_quit();

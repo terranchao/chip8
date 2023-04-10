@@ -9,9 +9,11 @@ endif()
 
 add_executable(chip8
     chip8.c
+    display.c
     io.c
     load.c
     main.c
+    timer.c
 )
 
 target_link_libraries(chip8
