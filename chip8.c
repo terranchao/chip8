@@ -460,7 +460,7 @@ static void execute_fx29(chip8_t *c8, const uint16_t instruction)
     }
     c8->I =
         FONT_START +
-        5*(c8->V[(instruction & 0x0f00) >> 8] & 0x0f);
+        FONT_SIZE*(c8->V[(instruction & 0x0f00) >> 8] & 0x0f);
 }
 
 static void execute_fx33(chip8_t *c8, const uint16_t instruction)

@@ -8,6 +8,7 @@
 extern char *g_romfile;
 extern const uint16_t PROGRAM_START;
 extern const size_t FONT_START;
+extern const size_t FONT_SIZE;
 
 extern void load(chip8_t *c8);
 
