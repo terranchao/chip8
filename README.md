@@ -17,11 +17,11 @@ machine** or simply an **interpreter**, which is what this project implements.
 
 ## Environment
 
-1. This project was written in C and is built using CMake.
+- This project was written in C and is built using CMake.
 
-2. This project was developed on
+- This project was developed on
 [WSL (Windows Subsystem for Linux)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
-Version 2. Here is some version information for the time of this writing:
+Version 2. Here is some version information from the time of this writing:
 
     ```bash
     $ wsl.exe -l -v
@@ -41,11 +41,11 @@ Version 2. Here is some version information for the time of this writing:
     Linux 5.15.90.1-microsoft-standard-WSL2 #1 SMP Fri Jan 27 02:56:13 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux
     ```
 
-3. User I/O is handled by the
+- User I/O is handled by the
 [SDL development library](https://www.libsdl.org/). Newer versions of WSL
 automatically come with [WSLg](https://github.com/microsoft/wslg),
-which allows GUI applications in WSL (like SDL) to run directly on Windows, no X
-server required.
+which allows GUI applications in WSL (like those based on SDL) to run directly
+on Windows, no X server required.
 
 ## Usage
 
@@ -53,17 +53,21 @@ server required.
 users must make sure their version of WSL is new enough to support WSLg
 features.
 
-1. Download
-    ```bash
-    git clone git@github.com:terranchao/chip8.git
-    ```
-2. Install dependencies
+1. Install dependencies
 
     On Debian systems:
     ```bash
     sudo apt install build-essential cmake libsdl2-dev
     ```
+
+2. Download
+
+    ```bash
+    git clone git@github.com:terranchao/chip8.git
+    ```
+
 3. Build
+
     ```bash
     cd chip8
 
@@ -76,20 +80,25 @@ features.
     popd            && \
     rm -rf build
     ```
+
 4. Run
+
     ```
     $ ./chip8
 
-    [USAGE] ./chip8 scale delay ROMfile
+    [USAGE] ./chip8 scale delay ROM
 
     Arguments:
-        scale   - window size multiplier (range: [1, 120])
-        delay   - instruction cycle delay amount (range: [0, 10])
-        ROMfile - CHIP-8 program file (binary format)
+        scale - window size multiplier (range: [1, 120])
+        delay - instruction cycle delay amount (range: [0, 10])
+        ROM   - CHIP-8 program filename
 
-    The recommended strategy for finding the right `scale` and `delay` values is to start them small, and slowly increase them until "it feels right".
-    A `scale` in the range of [10, 30] should do well for most users. It should be noted that this interpreter attempts to refresh the display at a rate of 60Hz by default, and that setting `scale` too high can lead to dropped frames - this will vary with the capabilities of different host machines.
-    The `delay` argument is to be used for tweaking the animation speed of a CHIP-8 program. Without an added delay, most modern processors will cause programs to run too quickly.
+    The recommended strategy for finding the right `scale` and `delay` values is
+    to start them small, and slowly increase them until "it feels right".
+    A `scale` in the range of [10, 30] should do well for most users.
+    The `delay` argument is to be used for tweaking the animation speed of a
+    CHIP-8 program. Without an added delay, most modern processors will cause
+    programs to run too quickly.
 
     ```
 
@@ -102,14 +111,22 @@ features.
     $ export LIBGL_ALWAYS_SOFTWARE=1
     ```
 
+5. Input
 
-## Unit Tests
+    Once the application is up and running, the user is able to provide keyboard
+    input to the interpreter using the following virtual key mapping:
+    ```
+    QWERTY      ->      CHIP-8
+    
+    1 2 3 4             1 2 3 C
+    Q W E R             4 5 6 D
+    A S D F             7 8 9 E
+    Z X C V             A 0 B F
+    ```
 
-TODO
+## Testing
 
-## ROMs
-
-### Testing
+### ROMs
 
 https://github.com/Timendus/chip8-test-suite
 
@@ -118,6 +135,10 @@ CHIP-8 variant that ran on the
 [COSMAC VIP](https://en.wikipedia.org/wiki/COSMAC_VIP).
 
 ### Games
+
+### Unit testing
+
+TODO
 
 ## References
 
