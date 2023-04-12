@@ -3,6 +3,7 @@
  * data and the CHIP-8 program instructions into interpreter memory. This is run
  * once at the beginning of the chip8 "CPU" thread.
  */
+#include <pthread.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,7 +46,7 @@ const size_t FONT_SIZE = (sizeof(g_font)/16);
 static void handle_fatal_error(FILE *fp)
 {
     if (fp) fclose(fp);
-    exit(EXIT_FAILURE);
+    pthread_exit(NULL);
 }
 
 void load(chip8_t *c8)

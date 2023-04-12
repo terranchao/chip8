@@ -21,8 +21,6 @@ volatile uint8_t g_in_fx0a = 0;
 unsigned int g_delay = 0;
 
 static const char *DEST_ADDR_OOR = "Destination address is out of range";
-static const char *DEST_ADDR_SELF =
-    "Self-destination address will result in an infinite loop";
 
 static void handle_error(
     const char *message, const uint16_t bad_address, const uint16_t instruction
@@ -32,7 +30,8 @@ static void handle_error(
         "[ERROR] %s (Memory[0x%03x]: 0x%04x)\n",
         message, bad_address, instruction
     );
-    exit(EXIT_FAILURE);
+    g_cpu_done = 1;
+    pthread_exit(NULL);
 }
 
 static void undefined_instruction(chip8_t *c8, const uint16_t instruction)
@@ -68,12 +67,6 @@ static void execute_0nnn(chip8_t *c8, const uint16_t instruction)
         default:
 #ifdef LEGACY
             // Jump to machine code routine
-            if (address == (c8->program_counter-2))
-            {
-                handle_error(
-                    DEST_ADDR_SELF, c8->program_counter-2, instruction
-                );
-            }
             c8->program_counter = address;
 #else
             undefined_instruction(c8, instruction);
@@ -89,10 +82,6 @@ static void execute_1nnn(chip8_t *c8, const uint16_t instruction)
     if (address < PROGRAM_START)
     {
         handle_error(DEST_ADDR_OOR, c8->program_counter-2, instruction);
-    }
-    if (address == (c8->program_counter-2))
-    {
-        handle_error(DEST_ADDR_SELF, c8->program_counter-2, instruction);
     }
     c8->program_counter = address;
 }
@@ -111,10 +100,6 @@ static void execute_2nnn(chip8_t *c8, const uint16_t instruction)
     if (address < PROGRAM_START)
     {
         handle_error(DEST_ADDR_OOR, c8->program_counter-2, instruction);
-    }
-    if (address == (c8->program_counter-2))
-    {
-        handle_error(DEST_ADDR_SELF, c8->program_counter-2, instruction);
     }
     c8->stack_pointer++;
     c8->stack[c8->stack_pointer] = c8->program_counter;
@@ -307,10 +292,6 @@ static void execute_bnnn(chip8_t *c8, const uint16_t instruction)
     if ((address < PROGRAM_START) || (address >= MEMORY_SIZE))
     {
         handle_error(DEST_ADDR_OOR, c8->program_counter-2, instruction);
-    }
-    if (address == (c8->program_counter-2))
-    {
-        handle_error(DEST_ADDR_SELF, c8->program_counter-2, instruction);
     }
     c8->program_counter = address;
 }
@@ -594,7 +575,6 @@ static void run(chip8_t *c8)
         // Decode/Execute
         (g_execute[(instruction & 0xf000) >> 12])(c8, instruction);
     }
-    g_cpu_done = 1;
 }
 
 void *chip8_fn(__attribute__ ((unused)) void *p)
@@ -623,5 +603,6 @@ void *chip8_fn(__attribute__ ((unused)) void *p)
     printf("%s exit\n", __func__);
 #endif
 
+    g_cpu_done = 1;
     pthread_exit(NULL);
 }
