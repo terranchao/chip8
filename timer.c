@@ -3,6 +3,7 @@
  * following tasks at a frequency of 60Hz as precisely as it can:
  * - Render the display to the screen.
  * - Decrement the internal system timers.
+ * - Play tone if sound timer is nonzero.
  */
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_audio.h>

@@ -16,6 +16,7 @@
 #include "timer.h"
 
 volatile uint8_t g_cpu_done = 0;
+volatile uint8_t g_in_fx0a = 0;
 
 unsigned int g_delay = 0;
 
@@ -409,9 +410,11 @@ static void execute_fx0a(chip8_t *c8, const uint16_t instruction)
     pthread_mutex_lock(&g_input_mutex);
     if (!g_io_done)
     {
+        g_in_fx0a = 1;
         pthread_cond_wait(&g_input_cond, &g_input_mutex);
+        c8->V[(instruction & 0x0f00) >> 8] = g_key_released;
+        g_in_fx0a = 0;
     }
-    c8->V[(instruction & 0x0f00) >> 8] = g_key_released;
     pthread_mutex_unlock(&g_input_mutex);
 }
 

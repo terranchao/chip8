@@ -20,6 +20,7 @@
 #include "chip8.h"
 #include "display.h"
 #include "io.h"
+#include "timer.h"
 
 volatile uint8_t g_io_done = 0;
 
@@ -180,21 +181,25 @@ void io_loop()
             )
             {
                 /* Keypad */
+                pthread_mutex_lock(&g_input_mutex);
+                if (g_in_fx0a)
+                {
+                    pthread_mutex_lock(&g_timer_mutex);
+                    g_sound_timer = 0x04;
+                    pthread_mutex_unlock(&g_timer_mutex);
+                }
                 if (e.type == SDL_KEYDOWN)
                 {
-                    pthread_mutex_lock(&g_input_mutex);
                     g_keystate |= g_bit16[g_keymap[e.key.keysym.sym]];
-                    pthread_mutex_unlock(&g_input_mutex);
                 }
                 else
                 {
                     // e.type == SDL_KEYUP
-                    pthread_mutex_lock(&g_input_mutex);
                     g_keystate &= ~g_bit16[g_keymap[e.key.keysym.sym]];
                     g_key_released = g_keymap[e.key.keysym.sym];
                     pthread_cond_signal(&g_input_cond);
-                    pthread_mutex_unlock(&g_input_mutex);
                 }
+                pthread_mutex_unlock(&g_input_mutex);
 #ifdef DEBUG
                 printf("%X %d | g_keystate: %04x\n",
                     g_keymap[e.key.keysym.sym],
