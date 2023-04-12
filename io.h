@@ -26,6 +26,7 @@ extern pthread_cond_t g_input_cond;
 extern SDL_AudioDeviceID g_audio_device_id;
 
 extern volatile uint8_t g_io_done;
+extern volatile uint8_t g_pause;
 extern void io_init();
 extern void io_loop();
 extern void io_quit();

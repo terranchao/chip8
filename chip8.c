@@ -389,7 +389,7 @@ static void execute_fx0a(chip8_t *c8, const uint16_t instruction)
         undefined_instruction(c8, instruction);
     }
     pthread_mutex_lock(&g_input_mutex);
-    if (!g_io_done)
+    if (!g_io_done && !g_pause)
     {
         g_in_fx0a = 1;
         pthread_cond_wait(&g_input_cond, &g_input_mutex);
@@ -556,6 +556,22 @@ static void (* const g_execute[16])(chip8_t*, const uint16_t) =
     execute_fnnn,
 };
 
+static void pause(chip8_t *c8, const uint16_t instruction)
+{
+    if (!g_pause) return;
+
+    while (!g_io_done)
+    {
+        if (!g_pause) break;
+    }
+
+    // If the previous pause interrupted a wait for a keypress, redo it.
+    if ((instruction & 0xf0ff) == 0xf00a)
+    {
+        c8->program_counter -= 2;
+    }
+}
+
 static void run(chip8_t *c8)
 {
     while (!g_io_done)
@@ -574,6 +590,9 @@ static void run(chip8_t *c8)
 
         // Decode/Execute
         (g_execute[(instruction & 0xf000) >> 12])(c8, instruction);
+
+        // Pause, if necessary
+        pause(c8, instruction);
     }
 }
 
