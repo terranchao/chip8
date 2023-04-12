@@ -17,9 +17,9 @@ machine** or simply an **interpreter**, which is what this project implements.
 
 ## Environment
 
-- This project was written in C and is built using CMake.
+- Written in C, built with CMake (GCC)
 
-- This project was developed on
+- Developed on
 [WSL (Windows Subsystem for Linux)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
 Version 2. Here is some version information from the time of this writing:
 

@@ -3,8 +3,8 @@
  * responsible for handling the user interface, including the application
  * window, the display, and sound. The remainder (and majority) of its time is
  * spent polling for key input from the user. Valid key input events signal the
- * chip8 "CPU" thread, which then processes those events. All of these features
- * are made possible by the SDL development library.
+ * CPU thread, which then processes those events. All of these features are made
+ * possible by the SDL development library.
  */
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_audio.h>

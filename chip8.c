@@ -1,6 +1,6 @@
 /*
- * The functions in this file implement the CHIP-8 instruction set and the chip8
- * "CPU" thread.
+ * The functions in this file implement the CHIP-8 CPU thread, including the
+ * entire CHIP-8 instruction set.
  */
 #include <pthread.h>
 #include <stdint.h>
@@ -393,8 +393,8 @@ static void execute_fx0a(chip8_t *c8, const uint16_t instruction)
     {
         g_in_fx0a = 1;
         pthread_cond_wait(&g_input_cond, &g_input_mutex);
-        c8->V[(instruction & 0x0f00) >> 8] = g_key_released;
         g_in_fx0a = 0;
+        c8->V[(instruction & 0x0f00) >> 8] = g_key_released;
     }
     pthread_mutex_unlock(&g_input_mutex);
 }
@@ -556,7 +556,7 @@ static void (* const g_execute[16])(chip8_t*, const uint16_t) =
     execute_fnnn,
 };
 
-static void pause(chip8_t *c8, const uint16_t instruction)
+static void process_ui_controls(chip8_t *c8, const uint16_t instruction)
 {
     if (!g_pause) return;
 
@@ -572,8 +572,12 @@ static void pause(chip8_t *c8, const uint16_t instruction)
     }
 }
 
-static void run(chip8_t *c8)
+static void start(chip8_t *c8)
 {
+#ifdef DEBUG
+    printf("%s\n", __func__);
+#endif
+
     while (!g_io_done)
     {
         // Fetch
@@ -591,12 +595,11 @@ static void run(chip8_t *c8)
         // Decode/Execute
         (g_execute[(instruction & 0xf000) >> 12])(c8, instruction);
 
-        // Pause, if necessary
-        pause(c8, instruction);
+        process_ui_controls(c8, instruction);
     }
 }
 
-void *chip8_fn(__attribute__ ((unused)) void *p)
+void *cpu_fn(__attribute__ ((unused)) void *p)
 {
     // Init
     chip8_t c8 = {0};
@@ -604,19 +607,15 @@ void *chip8_fn(__attribute__ ((unused)) void *p)
     c8.stack_pointer = -1;
     srand(time(NULL));
 
-    load(&c8);
+    load_memory(c8.memory);
 
 #ifdef DEBUG
-    print_memory(&c8);
+    print_memory(c8.memory);
 #endif
 
     while (!g_timer_start);
 
-#ifdef DEBUG
-    printf("%s start run\n", __func__);
-#endif
-
-    run(&c8);
+    start(&c8);
 
 #ifdef DEBUG
     printf("%s exit\n", __func__);

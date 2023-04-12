@@ -26,6 +26,6 @@ extern volatile uint8_t g_in_fx0a;
 
 extern unsigned int g_delay;
 
-extern void *chip8_fn(void *p);
+extern void *cpu_fn(void *p);
 
 #endif // CHIP8_H

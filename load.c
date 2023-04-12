@@ -1,7 +1,7 @@
 /*
  * This file contains the code that is responsible for loading the font graphic
  * data and the CHIP-8 program instructions into interpreter memory. This is run
- * once at the beginning of the chip8 "CPU" thread.
+ * once at the beginning of the CPU thread.
  */
 #include <pthread.h>
 #include <stdint.h>
@@ -49,7 +49,7 @@ static void handle_fatal_error(FILE *fp)
     pthread_exit(NULL);
 }
 
-void load(chip8_t *c8)
+void load_memory(uint8_t *memory)
 {
     printf("File: %s\n", g_romfile);
 
@@ -80,7 +80,7 @@ void load(chip8_t *c8)
 
     // Rewind and read into memory
     rewind(fp);
-    if (fread(&c8->memory[PROGRAM_START], 1, file_size, fp))
+    if (fread(&memory[PROGRAM_START], 1, file_size, fp))
     {
         printf("Loaded into memory address 0x%03x successfully\n",
             PROGRAM_START);
@@ -93,11 +93,11 @@ void load(chip8_t *c8)
     }
 
     // Load font
-    memcpy(&c8->memory[FONT_START], g_font, sizeof(g_font));
+    memcpy(&memory[FONT_START], g_font, sizeof(g_font));
 }
 
 #ifdef DEBUG
-void print_memory(const chip8_t *c8)
+void print_memory(const uint8_t *memory)
 {
     printf("%s:", __func__);
     for (size_t i = 0; i < MEMORY_SIZE; i++)
@@ -110,7 +110,7 @@ void print_memory(const chip8_t *c8)
         {
             printf(" ");
         }
-        printf("%02x ", c8->memory[i]);
+        printf("%02x ", memory[i]);
     }
     printf("\n");
 }

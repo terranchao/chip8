@@ -1,8 +1,8 @@
 /*
- * The functions in this file are called from the chip8 "CPU" thread. They write
- * to the display's framebuffer, and then the timer thread renders the
- * framebuffer to the user. `pthread_cond_wait()` is used to enforce a maximum
- * call frequency to these functions, which is determined by the timer thread.
+ * The functions in this file are called from the CPU thread. They write to the
+ * display's framebuffer, and then the timer thread renders the framebuffer to
+ * the user. `pthread_cond_wait()` is used to enforce a maximum call frequency
+ * to these functions, which is determined by the timer thread.
  */
 
 #include <pthread.h>

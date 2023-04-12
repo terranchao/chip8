@@ -3,17 +3,15 @@
 
 #include <stdint.h>
 
-#include "chip8.h"
-
 extern char *g_romfile;
 extern const uint16_t PROGRAM_START;
 extern const size_t FONT_START;
 extern const size_t FONT_SIZE;
 
-extern void load(chip8_t *c8);
+extern void load_memory(uint8_t *memory);
 
 #ifdef DEBUG
-extern void print_memory(const chip8_t *c8);
+extern void print_memory(const uint8_t *memory);
 #endif
 
 #endif // LOAD_H
