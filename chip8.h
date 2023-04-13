@@ -4,6 +4,11 @@
 #include <stdint.h>
 
 #define MEMORY_SIZE 0x1000  // 4KB (4096 bytes)
+#ifdef CHIP8
+#define STACK_SIZE 12
+#else
+#define STACK_SIZE 16
+#endif
 
 typedef struct
 {
@@ -16,7 +21,7 @@ typedef struct
 
     /* Control Flow */
     uint16_t program_counter;
-    uint16_t stack[16];
+    uint16_t stack[STACK_SIZE];
     int8_t stack_pointer;
 
 } chip8_t;

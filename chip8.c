@@ -20,6 +20,8 @@ volatile uint8_t g_in_fx0a = 0;
 
 unsigned int g_delay = 0;
 
+static const int8_t MAX_STACK_INDEX = (STACK_SIZE-1);
+
 static const char *DEST_ADDR_OOR = "Destination address is out of range";
 
 static void handle_error(
@@ -89,7 +91,7 @@ static void execute_1nnn(chip8_t *c8, const uint16_t instruction)
 static void execute_2nnn(chip8_t *c8, const uint16_t instruction)
 {
     // Call subroutine
-    if (c8->stack_pointer == 15)
+    if (c8->stack_pointer == MAX_STACK_INDEX)
     {
         handle_error(
             "Trying to increment stack pointer beyond limit",

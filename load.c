@@ -20,7 +20,7 @@ const size_t FONT_START = 0x000;
 const size_t FONT_START = 0x050;
 #endif
 const uint16_t PROGRAM_START = 0x200;
-static const unsigned long MAX_PROGRAM_SIZE = MEMORY_SIZE - PROGRAM_START;
+static const unsigned long MAX_PROGRAM_SIZE = (MEMORY_SIZE-PROGRAM_START);
 
 static const uint8_t g_font[] =
 {
