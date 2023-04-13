@@ -389,7 +389,7 @@ static void execute_fx0a(chip8_t *c8, const uint16_t instruction)
         undefined_instruction(c8, instruction);
     }
     pthread_mutex_lock(&g_input_mutex);
-    if (!g_io_done && !g_pause)
+    if (!(g_io_done || g_restart || g_pause))
     {
         g_in_fx0a = 1;
         pthread_cond_wait(&g_input_cond, &g_input_mutex);
@@ -556,28 +556,44 @@ static void (* const g_execute[16])(chip8_t*, const uint16_t) =
     execute_fnnn,
 };
 
+static void initialize(chip8_t *c8)
+{
+    memset(c8, 0, sizeof(*c8));
+    c8->program_counter = PROGRAM_START;
+    c8->stack_pointer = -1;
+
+    load_memory(c8->memory);
+
+#ifdef DEBUG
+    print_memory(c8->memory);
+#endif
+}
+
 static void process_ui_controls(chip8_t *c8, const uint16_t instruction)
 {
-    if (!g_pause) return;
-
-    while (!g_io_done)
-    {
-        if (!g_pause) break;
-    }
-
-    // If the previous pause interrupted a wait for a keypress, redo it.
-    if ((instruction & 0xf0ff) == 0xf00a)
+    // If a pause interrupts a wait for a keypress, redo it.
+    if (g_pause && ((instruction & 0xf0ff) == 0xf00a))
     {
         c8->program_counter -= 2;
     }
+
+    while (!g_io_done)
+    {
+        if (g_restart)
+        {
+            initialize(c8);
+            clear_display();
+            g_restart = 0;
+        }
+        if (!g_pause) break;
+    }
 }
 
-static void start(chip8_t *c8)
+static void run(chip8_t *c8)
 {
 #ifdef DEBUG
-    printf("%s\n", __func__);
+    printf("%s start\n", __func__);
 #endif
-
     while (!g_io_done)
     {
         // Fetch
@@ -601,21 +617,14 @@ static void start(chip8_t *c8)
 
 void *cpu_fn(__attribute__ ((unused)) void *p)
 {
-    // Init
-    chip8_t c8 = {0};
-    c8.program_counter = PROGRAM_START;
-    c8.stack_pointer = -1;
+    chip8_t c8;
+    initialize(&c8);
+
     srand(time(NULL));
-
-    load_memory(c8.memory);
-
-#ifdef DEBUG
-    print_memory(c8.memory);
-#endif
 
     while (!g_timer_start);
 
-    start(&c8);
+    run(&c8);
 
 #ifdef DEBUG
     printf("%s exit\n", __func__);

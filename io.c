@@ -23,6 +23,7 @@
 
 volatile uint8_t g_io_done = 0;
 volatile uint8_t g_pause = 0;
+volatile uint8_t g_restart = 0;
 
 /* Display */
 size_t g_pixel_scale = 0;
@@ -213,6 +214,14 @@ void io_loop()
                 /* Pause */
                 pthread_mutex_lock(&g_input_mutex);
                 g_pause ^= 1;
+                pthread_cond_signal(&g_input_cond);
+                pthread_mutex_unlock(&g_input_mutex);
+            }
+            else if ((e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_LCTRL))
+            {
+                /* Restart */
+                pthread_mutex_lock(&g_input_mutex);
+                g_restart = 1;
                 pthread_cond_signal(&g_input_cond);
                 pthread_mutex_unlock(&g_input_mutex);
             }

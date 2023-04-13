@@ -27,6 +27,7 @@ extern SDL_AudioDeviceID g_audio_device_id;
 
 extern volatile uint8_t g_io_done;
 extern volatile uint8_t g_pause;
+extern volatile uint8_t g_restart;
 extern void io_init();
 extern void io_loop();
 extern void io_quit();
