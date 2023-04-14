@@ -57,13 +57,14 @@ features.
 
     On Debian systems:
     ```bash
+    sudo apt update
     sudo apt install build-essential cmake libsdl2-dev
     ```
 
 2. Download
 
     ```bash
-    git clone git@github.com:terranchao/chip8.git
+    git clone https://github.com/terranchao/chip8.git
     ```
 
 3. Build
@@ -129,6 +130,8 @@ CHIP-8 variant that ran on the
 [COSMAC VIP](https://en.wikipedia.org/wiki/COSMAC_VIP).
 
 ### Games
+
+https://github.com/JohnEarnest/chip8Archive/tree/master/roms
 
 ### Unit testing
 
