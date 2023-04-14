@@ -37,10 +37,8 @@ const size_t DISPLAY_WIDTH = 64;
 const size_t DISPLAY_HEIGHT = 32;
 
 /* Key input */
-#define KEYMAP_SIZE 123
 uint16_t g_keystate = 0;
 uint8_t g_key_released = 0xff;
-static uint8_t g_keymap[KEYMAP_SIZE] = {0};
 const uint16_t g_bit16[16] =
 {
     0x0001, 0x0002, 0x0004, 0x0008,
@@ -75,7 +73,7 @@ void audio_callback(
 )
 {
     float *fstream = (float*)(stream);
-    size_t num_samples = (num_bytes/8); // 2 floats
+    size_t num_samples = (num_bytes/8); // each sample is two 32-bit floats
     for(size_t i = 0; i < num_samples; ++i)
     {
         const double x =
@@ -129,25 +127,6 @@ void io_init()
     {
         handle_sdl_fatal("Unable to create texture");
     }
-
-    // Set CHIP-8 key mappings
-    memset(g_keymap, 0xff, KEYMAP_SIZE);
-    g_keymap[SDLK_1] = 0x1;
-    g_keymap[SDLK_2] = 0x2;
-    g_keymap[SDLK_3] = 0x3;
-    g_keymap[SDLK_4] = 0xc;
-    g_keymap[SDLK_q] = 0x4;
-    g_keymap[SDLK_w] = 0x5;
-    g_keymap[SDLK_e] = 0x6;
-    g_keymap[SDLK_r] = 0xd;
-    g_keymap[SDLK_a] = 0x7;
-    g_keymap[SDLK_s] = 0x8;
-    g_keymap[SDLK_d] = 0x9;
-    g_keymap[SDLK_f] = 0xe;
-    g_keymap[SDLK_z] = 0xa;
-    g_keymap[SDLK_x] = 0x0;
-    g_keymap[SDLK_c] = 0xb;
-    g_keymap[SDLK_v] = 0xf;
     
     SDL_AudioSpec audio_spec_want = {0}, audio_spec;
     audio_spec_want.freq     = (int)SOUND_SAMPLE_RATE;
@@ -170,6 +149,27 @@ void io_init()
 
 void io_loop()
 {
+    // Set CHIP-8 key mappings
+    const uint8_t keymap[] =
+    {
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0x01, 0x02, 0x03, 0x0c, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0x07, 0xff, 0x0b, 0x09, 0x06, 0x0e, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0x04, 0x0d, 0x08, 0xff, 0xff, 0x0f, 0x05,
+        0x00, 0xff, 0x0a,
+    };
+    const int32_t KEYMAP_SIZE = sizeof(keymap);
     while (1)
     {
         SDL_Event e;
@@ -178,7 +178,7 @@ void io_loop()
             if (
                 ((e.type == SDL_KEYDOWN) || (e.type == SDL_KEYUP)) &&
                 (e.key.keysym.sym < KEYMAP_SIZE) &&
-                (g_keymap[e.key.keysym.sym] < 16)
+                (keymap[e.key.keysym.sym] < 16)
             )
             {
                 /* Keypad */
@@ -191,19 +191,19 @@ void io_loop()
                 }
                 if (e.type == SDL_KEYDOWN)
                 {
-                    g_keystate |= g_bit16[g_keymap[e.key.keysym.sym]];
+                    g_keystate |= g_bit16[keymap[e.key.keysym.sym]];
                 }
                 else
                 {
                     // e.type == SDL_KEYUP
-                    g_keystate &= ~g_bit16[g_keymap[e.key.keysym.sym]];
-                    g_key_released = g_keymap[e.key.keysym.sym];
+                    g_keystate &= ~g_bit16[keymap[e.key.keysym.sym]];
+                    g_key_released = keymap[e.key.keysym.sym];
                     pthread_cond_signal(&g_input_cond);
                 }
                 pthread_mutex_unlock(&g_input_mutex);
 #ifdef DEBUG
                 printf("%X %d | g_keystate: %04x\n",
-                    g_keymap[e.key.keysym.sym],
+                    keymap[e.key.keysym.sym],
                     (e.type == SDL_KEYDOWN),
                     g_keystate
                 );

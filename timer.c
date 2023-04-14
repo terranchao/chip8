@@ -12,13 +12,7 @@
 #ifdef DEBUG
 #include <stdio.h>
 #endif
-
 #include <time.h>
-#ifdef CLOCK_MONOTONIC_RAW
-static const clockid_t clock_id = CLOCK_MONOTONIC_RAW;
-#else
-static const clockid_t clock_id = CLOCK_MONOTONIC;
-#endif
 
 #include "chip8.h"
 #include "display.h"
@@ -69,13 +63,18 @@ void *timer_fn(__attribute__ ((unused)) void *p)
 
     const long period_ns = 16666667; // ~60Hz
     struct timespec before, after, sleep;
+#ifdef CLOCK_MONOTONIC_RAW
+    const clockid_t clock_id = CLOCK_MONOTONIC_RAW;
+#else
+    const clockid_t clock_id = CLOCK_MONOTONIC;
+#endif
     while (!g_cpu_done)
     {
         clock_gettime(clock_id, &before);
         update_display();
         update_timers();
         clock_gettime(clock_id, &after);
-        long remaining_ns =
+        const long remaining_ns =
             period_ns + (before.tv_sec - after.tv_sec) * 1000000000 +
             (before.tv_nsec - after.tv_nsec); // (period - elapsed)
         sleep.tv_sec = (remaining_ns / 1000000000);
