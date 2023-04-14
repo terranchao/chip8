@@ -218,7 +218,9 @@ void io_loop()
                 pthread_cond_signal(&g_input_cond);
                 pthread_mutex_unlock(&g_input_mutex);
             }
-            else if ((e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_LCTRL))
+            else if (
+                (e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_BACKSPACE)
+            )
             {
                 /* Restart */
                 pthread_mutex_lock(&g_input_mutex);
