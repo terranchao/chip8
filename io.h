@@ -6,7 +6,6 @@
 #include <stdint.h>
 
 /* Display */
-extern size_t g_pixel_scale;
 extern SDL_Renderer *g_renderer;
 extern SDL_Texture *g_texture;
 extern uint32_t *g_framebuffer;

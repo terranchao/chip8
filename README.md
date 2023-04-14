@@ -84,17 +84,11 @@ features.
 
 4. Run
 
-    ```
-    $ ./chip8
-
-    [USAGE] ./chip8 scale ROM
-
-    Arguments:
-        scale - window size multiplier (range: [1, 120])
-        ROM   - CHIP-8 program filename
-
-    A `scale` in range [10, 30] is recommended for most users.
-
+    The user should provide a `ROM` argument to the interpreter. This argument
+    should be the filename of a valid CHIP-8 program file. CHIP-8 program files
+    come in binary format, and usually have a designated .ch8 file extension.
+    ```bash
+    ./chip8 ROM
     ```
 
     There is a known WSLg-SDL compatibility

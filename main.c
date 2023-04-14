@@ -1,7 +1,6 @@
 
 #include <pthread.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "chip8.h"
 #include "display.h"
@@ -11,37 +10,13 @@
 
 int main(int argc, char *argv[])
 {
-    const size_t pixel_scale_min = 1;
-    const size_t pixel_scale_max = 120;
-
-    if (argc != 3)
+    if (argc != 2)
     {
-        printf(
-            "                                                           \n"
-            "[USAGE] %s scale ROM                                       \n"
-            "                                                           \n"
-            "Arguments:                                                 \n"
-            "    scale - window size multiplier (range: [%lu, %lu])     \n"
-            "    ROM   - CHIP-8 program filename                        \n"
-            "                                                           \n"
-            "A `scale` in range [10, 30] is recommended for most users. \n"
-            "                                                           \n"
-            , argv[0], pixel_scale_min, pixel_scale_max
-        );
+        printf("[USAGE] %s ROM\n", argv[0]);
         return 1;
     }
 
-    g_pixel_scale = atoi(argv[1]);
-    if ((g_pixel_scale < pixel_scale_min) || (g_pixel_scale > pixel_scale_max))
-    {
-        printf(
-            "[ERROR] Argument 'scale' must be in range [%lu, %lu]\n",
-            pixel_scale_min, pixel_scale_max
-        );
-        exit(EXIT_FAILURE);
-    }
-
-    g_romfile = argv[2];
+    g_romfile = argv[1];
 
     pthread_t t1, t2;
     io_init();

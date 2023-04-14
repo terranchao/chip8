@@ -26,7 +26,7 @@ volatile uint8_t g_pause = 0;
 volatile uint8_t g_restart = 0;
 
 /* Display */
-size_t g_pixel_scale = 0;
+static const size_t g_pixel_scale = 20; // arbitrary default
 static SDL_Window *g_window = NULL;
 SDL_Renderer *g_renderer = NULL;
 SDL_Texture *g_texture = NULL;
