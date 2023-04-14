@@ -162,6 +162,14 @@ void io_init()
     }
 }
 
+static void quit()
+{
+    pthread_mutex_lock(&g_input_mutex);
+    g_io_done = 1;
+    pthread_cond_signal(&g_input_cond);
+    pthread_mutex_unlock(&g_input_mutex);
+}
+
 void io_loop()
 {
     // Set (keyboard -> CHIP-8) key mappings
@@ -212,34 +220,36 @@ void io_loop()
                 }
                 pthread_mutex_unlock(&g_input_mutex);
             }
-            else if ((e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_SPACE))
+            else if (e.type == SDL_KEYUP)
             {
-                /* Pause */
-                pthread_mutex_lock(&g_input_mutex);
-                g_pause ^= 1;
-                pthread_cond_signal(&g_input_cond);
-                pthread_mutex_unlock(&g_input_mutex);
+                switch (e.key.keysym.sym)
+                {
+                    case SDLK_SPACE:
+                        /* Pause */
+                        pthread_mutex_lock(&g_input_mutex);
+                        g_pause ^= 1;
+                        pthread_cond_signal(&g_input_cond);
+                        pthread_mutex_unlock(&g_input_mutex);
+                        break;
+                    case SDLK_BACKSPACE:
+                        /* Restart */
+                        pthread_mutex_lock(&g_input_mutex);
+                        g_restart = 1;
+                        pthread_cond_signal(&g_input_cond);
+                        pthread_mutex_unlock(&g_input_mutex);
+                        break;
+                    case SDLK_ESCAPE:
+                        /* Quit */
+                        quit();
+                        return;
+                    default:
+                        break;
+                }
             }
-            else if (
-                (e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_BACKSPACE)
-            )
-            {
-                /* Restart */
-                pthread_mutex_lock(&g_input_mutex);
-                g_restart = 1;
-                pthread_cond_signal(&g_input_cond);
-                pthread_mutex_unlock(&g_input_mutex);
-            }
-            else if (
-                ((e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_ESCAPE)) ||
-                (e.type == SDL_QUIT)
-            )
+            else if (e.type == SDL_QUIT)
             {
                 /* Quit */
-                pthread_mutex_lock(&g_input_mutex);
-                g_io_done = 1;
-                pthread_cond_signal(&g_input_cond);
-                pthread_mutex_unlock(&g_input_mutex);
+                quit();
                 return;
             }
         }
