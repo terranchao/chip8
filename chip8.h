@@ -28,9 +28,6 @@ typedef struct
 
 extern volatile uint8_t g_cpu_done;
 extern volatile uint8_t g_in_fx0a;
-
-extern unsigned int g_delay;
-
 extern void *cpu_fn(void *p);
 
 #endif // CHIP8_H

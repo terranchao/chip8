@@ -170,6 +170,7 @@ void io_loop()
         0x00, 0xff, 0x0a,
     };
     const int32_t KEYMAP_SIZE = sizeof(keymap);
+
     while (1)
     {
         SDL_Event e;

@@ -18,8 +18,6 @@
 volatile uint8_t g_cpu_done = 0;
 volatile uint8_t g_in_fx0a = 0;
 
-unsigned int g_delay = 0;
-
 static const int8_t MAX_STACK_INDEX = (STACK_SIZE-1);
 
 static const char *DEST_ADDR_OOR = "Destination address is out of range";

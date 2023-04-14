@@ -47,7 +47,7 @@ automatically come with [WSLg](https://github.com/microsoft/wslg),
 which allows GUI applications in WSL (like those based on SDL) to run directly
 on Windows, no X server required.
 
-## Usage
+## Command-line Usage
 
 **Note:** At the moment, these instructions are catered to Linux/WSL users. WSL
 users must make sure their version of WSL is new enough to support WSLg
@@ -86,19 +86,13 @@ features.
     ```
     $ ./chip8
 
-    [USAGE] ./chip8 scale delay ROM
+    [USAGE] ./chip8 scale ROM
 
     Arguments:
         scale - window size multiplier (range: [1, 120])
-        delay - instruction cycle delay amount (range: [0, 10])
         ROM   - CHIP-8 program filename
 
-    The recommended strategy for finding the right `scale` and `delay` values is
-    to start them small, and slowly increase them until "it feels right".
-    A `scale` in the range of [10, 30] should do well for most users.
-    The `delay` argument is to be used for tweaking the animation speed of a
-    CHIP-8 program. Without an added delay, most modern processors will cause
-    programs to run too quickly.
+    A `scale` in range [10, 30] is recommended for most users.
 
     ```
 
