@@ -37,14 +37,27 @@ const size_t DISPLAY_WIDTH = 64;
 const size_t DISPLAY_HEIGHT = 32;
 
 /* Key input */
-uint16_t g_keystate = 0;
+uint8_t *g_keystate = NULL;
 uint8_t g_key_released = 0xff;
-const uint16_t g_bit16[16] =
+const size_t g_keymap[] =
 {
-    0x0001, 0x0002, 0x0004, 0x0008,
-    0x0010, 0x0020, 0x0040, 0x0080,
-    0x0100, 0x0200, 0x0400, 0x0800,
-    0x1000, 0x2000, 0x4000, 0x8000,
+    // Set (CHIP-8 -> keyboard) key mappings
+    SDL_SCANCODE_X,
+    SDL_SCANCODE_1,
+    SDL_SCANCODE_2,
+    SDL_SCANCODE_3,
+    SDL_SCANCODE_Q,
+    SDL_SCANCODE_W,
+    SDL_SCANCODE_E,
+    SDL_SCANCODE_A,
+    SDL_SCANCODE_S,
+    SDL_SCANCODE_D,
+    SDL_SCANCODE_Z,
+    SDL_SCANCODE_C,
+    SDL_SCANCODE_4,
+    SDL_SCANCODE_R,
+    SDL_SCANCODE_F,
+    SDL_SCANCODE_V,
 };
 pthread_mutex_t g_input_mutex = {0};
 pthread_cond_t g_input_cond = {0};
@@ -127,6 +140,8 @@ void io_init()
     {
         handle_sdl_fatal("Unable to create texture");
     }
+
+    g_keystate = (uint8_t*)SDL_GetKeyboardState(NULL);
     
     SDL_AudioSpec audio_spec_want = {0}, audio_spec;
     audio_spec_want.freq     = (int)SOUND_SAMPLE_RATE;
@@ -149,7 +164,7 @@ void io_init()
 
 void io_loop()
 {
-    // Set CHIP-8 key mappings
+    // Set (keyboard -> CHIP-8) key mappings
     const uint8_t keymap[] =
     {
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -190,25 +205,12 @@ void io_loop()
                     g_sound_timer = 0x04;
                     pthread_mutex_unlock(&g_timer_mutex);
                 }
-                if (e.type == SDL_KEYDOWN)
+                if (e.type == SDL_KEYUP)
                 {
-                    g_keystate |= g_bit16[keymap[e.key.keysym.sym]];
-                }
-                else
-                {
-                    // e.type == SDL_KEYUP
-                    g_keystate &= ~g_bit16[keymap[e.key.keysym.sym]];
                     g_key_released = keymap[e.key.keysym.sym];
                     pthread_cond_signal(&g_input_cond);
                 }
                 pthread_mutex_unlock(&g_input_mutex);
-#ifdef DEBUG
-                printf("%X %d | g_keystate: %04x\n",
-                    keymap[e.key.keysym.sym],
-                    (e.type == SDL_KEYDOWN),
-                    g_keystate
-                );
-#endif
             }
             else if ((e.type == SDL_KEYUP) && (e.key.keysym.sym == SDLK_SPACE))
             {

@@ -16,9 +16,9 @@ extern const size_t DISPLAY_WIDTH;
 extern const size_t DISPLAY_HEIGHT;
 
 /* Key input */
-extern uint16_t g_keystate;
+extern uint8_t *g_keystate;
 extern uint8_t g_key_released;
-extern const uint16_t g_bit16[16];
+extern const size_t g_keymap[];
 extern pthread_mutex_t g_input_mutex;
 extern pthread_cond_t g_input_cond;
 
