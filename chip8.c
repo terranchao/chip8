@@ -571,23 +571,61 @@ static void initialize(chip8_t *c8)
 #endif
 }
 
+static const uint8_t pause_icon[] = {
+    0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc
+};
+static const size_t PAUSE_ICON_SIZE = sizeof(pause_icon);
+static inline void draw_pause_icon()
+{
+    draw_sprite(12, 29, pause_icon, PAUSE_ICON_SIZE);
+}
+
+static const uint8_t restart_icon[] = {
+    0x00, 0x08, 0x18, 0x3f, 0x7f, 0x3f, 0x18, 0x08
+};
+static const size_t RESTART_ICON_SIZE = sizeof(restart_icon);
+static inline void draw_restart_icon()
+{
+    draw_sprite(0, 0, restart_icon, RESTART_ICON_SIZE);
+}
+
 static void process_ui_controls(chip8_t *c8, const uint16_t instruction)
 {
-    // If a pause interrupts a wait for a keypress, redo it.
-    if (g_pause && ((instruction & 0xf0ff) == 0xf00a))
+    uint8_t in_restart = 0;
+    uint8_t in_pause = 0;
+
+    if (g_pause)
     {
-        c8->program_counter -= 2;
+        draw_pause_icon();
+        if ((instruction & 0xf0ff) == 0xf00a)
+        {
+            // If a pause interrupts a wait for a keypress, redo it.
+            c8->program_counter -= 2;
+        }
+        in_pause = 1;
     }
 
     while (!g_io_done)
     {
         if (g_restart)
         {
-            initialize(c8);
-            clear_display();
+            draw_restart_icon();
+            in_restart ^= 1;
             g_restart = 0;
         }
-        if (!g_pause) break;
+        if (!g_pause)
+        {
+            if (in_restart)
+            {
+                initialize(c8);
+                clear_display();
+            }
+            else if (in_pause)
+            {
+                draw_pause_icon();
+            }
+            break;
+        }
     }
 }
 
