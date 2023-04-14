@@ -556,7 +556,7 @@ static void (* const g_execute[16])(chip8_t*, const uint16_t) =
     execute_fnnn,
 };
 
-static void initialize(chip8_t *c8)
+static void reset(chip8_t *c8)
 {
     memset(c8, 0, sizeof(*c8));
     c8->program_counter = PROGRAM_START;
@@ -615,7 +615,7 @@ static void process_ui_controls(chip8_t *c8, const uint16_t instruction)
         {
             if (in_restart)
             {
-                initialize(c8);
+                reset(c8);
                 clear_display();
             }
             else if (in_pause)
@@ -656,7 +656,7 @@ static void run(chip8_t *c8)
 void *cpu_fn(__attribute__ ((unused)) void *p)
 {
     chip8_t c8;
-    initialize(&c8);
+    reset(&c8);
 
     srand(time(NULL));
 
