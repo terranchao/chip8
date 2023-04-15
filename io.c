@@ -26,7 +26,7 @@ volatile uint8_t g_pause = 0;
 volatile uint8_t g_restart = 0;
 
 /* Display */
-static const size_t g_pixel_scale = 20; // arbitrary default
+static size_t g_pixel_scale = 20; // arbitrary default
 static SDL_Window *g_window = NULL;
 SDL_Renderer *g_renderer = NULL;
 SDL_Texture *g_texture = NULL;
@@ -237,6 +237,44 @@ void io_loop()
                         g_restart = 1;
                         pthread_cond_signal(&g_input_cond);
                         pthread_mutex_unlock(&g_input_mutex);
+                        break;
+                    case SDLK_MINUS:
+                        /* Decrease window size */
+                        if (g_pixel_scale > 16)
+                        {
+                            // Ratio: 3/4
+                            g_pixel_scale *= 3;
+                            g_pixel_scale >>= 2;
+                            SDL_SetWindowSize(
+                                g_window,
+                                g_pixel_scale * DISPLAY_WIDTH,
+                                g_pixel_scale * DISPLAY_HEIGHT
+                            );
+                            SDL_SetWindowPosition(
+                                g_window,
+                                SDL_WINDOWPOS_CENTERED,
+                                SDL_WINDOWPOS_CENTERED
+                            );
+                        }
+                        break;
+                    case SDLK_EQUALS:
+                        /* Increase window size */
+                        if (g_pixel_scale < 120)
+                        {
+                            // Ratio: 5/4
+                            g_pixel_scale *= 5;
+                            g_pixel_scale >>= 2;
+                            SDL_SetWindowSize(
+                                g_window,
+                                g_pixel_scale * DISPLAY_WIDTH,
+                                g_pixel_scale * DISPLAY_HEIGHT
+                            );
+                            SDL_SetWindowPosition(
+                                g_window,
+                                SDL_WINDOWPOS_CENTERED,
+                                SDL_WINDOWPOS_CENTERED
+                            );
+                        }
                         break;
                     case SDLK_ESCAPE:
                         /* Quit */
