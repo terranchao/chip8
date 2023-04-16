@@ -321,12 +321,10 @@ static void execute_ex9e(chip8_t *c8, const uint16_t instruction)
     {
         undefined_instruction(c8, instruction);
     }
-    pthread_mutex_lock(&g_input_mutex);
     if (g_keystate[g_keymap[c8->V[(instruction & 0x0f00) >> 8]]])
     {
         c8->program_counter += 2;
     }
-    pthread_mutex_unlock(&g_input_mutex);
 }
 
 static void execute_exa1(chip8_t *c8, const uint16_t instruction)
@@ -336,12 +334,10 @@ static void execute_exa1(chip8_t *c8, const uint16_t instruction)
     {
         undefined_instruction(c8, instruction);
     }
-    pthread_mutex_lock(&g_input_mutex);
     if (!g_keystate[g_keymap[c8->V[(instruction & 0x0f00) >> 8]]])
     {
         c8->program_counter += 2;
     }
-    pthread_mutex_unlock(&g_input_mutex);
 }
 
 static void (* const g_execute_exnn[16])(chip8_t*, const uint16_t) = 

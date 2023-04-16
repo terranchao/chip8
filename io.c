@@ -206,7 +206,6 @@ void io_loop()
             )
             {
                 /* Keypad */
-                pthread_mutex_lock(&g_input_mutex);
                 if (g_in_fx0a)
                 {
                     pthread_mutex_lock(&g_timer_mutex);
@@ -215,10 +214,11 @@ void io_loop()
                 }
                 if (e.type == SDL_KEYUP)
                 {
+                    pthread_mutex_lock(&g_input_mutex);
                     g_key_released = keymap[e.key.keysym.sym];
                     pthread_cond_signal(&g_input_cond);
+                    pthread_mutex_unlock(&g_input_mutex);
                 }
-                pthread_mutex_unlock(&g_input_mutex);
             }
             else if (e.type == SDL_KEYUP)
             {
