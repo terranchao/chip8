@@ -199,6 +199,78 @@ void io_loop()
         SDL_Event e;
         while (SDL_PollEvent(&e))
         {
+            if (e.type == SDL_KEYUP)
+            {
+                switch (e.key.keysym.sym)
+                {
+                case SDLK_SPACE:
+                    /* Pause */
+                    pthread_mutex_lock(&g_input_mutex);
+                    g_pause ^= 1;
+                    pthread_cond_signal(&g_input_cond);
+                    pthread_mutex_unlock(&g_input_mutex);
+                    continue;
+                case SDLK_BACKSPACE:
+                    /* Restart */
+                    pthread_mutex_lock(&g_input_mutex);
+                    g_restart = 1;
+                    pthread_cond_signal(&g_input_cond);
+                    pthread_mutex_unlock(&g_input_mutex);
+                    continue;
+                case SDLK_MINUS:
+                    /* Decrease window size */
+                    if (g_pixel_scale > 16)
+                    {
+                        // Ratio: 3/4
+                        g_pixel_scale *= 3;
+                        g_pixel_scale >>= 2;
+                        SDL_SetWindowSize(
+                            g_window,
+                            g_pixel_scale * DISPLAY_WIDTH,
+                            g_pixel_scale * DISPLAY_HEIGHT
+                        );
+                        SDL_SetWindowPosition(
+                            g_window,
+                            SDL_WINDOWPOS_CENTERED,
+                            SDL_WINDOWPOS_CENTERED
+                        );
+                    }
+                    continue;
+                case SDLK_EQUALS:
+                    /* Increase window size */
+                    if (g_pixel_scale < 120)
+                    {
+                        // Ratio: 5/4
+                        g_pixel_scale *= 5;
+                        g_pixel_scale >>= 2;
+                        SDL_SetWindowSize(
+                            g_window,
+                            g_pixel_scale * DISPLAY_WIDTH,
+                            g_pixel_scale * DISPLAY_HEIGHT
+                        );
+                        SDL_SetWindowPosition(
+                            g_window,
+                            SDL_WINDOWPOS_CENTERED,
+                            SDL_WINDOWPOS_CENTERED
+                        );
+                    }
+                    continue;
+                case SDLK_ESCAPE:
+                    /* Quit */
+                    quit();
+                    return;
+                default:
+                    /* Non-UI input */
+                    break;
+                }
+            }
+            else if (e.type == SDL_QUIT)
+            {
+                /* Quit */
+                quit();
+                return;
+            }
+
             if (
                 ((e.type == SDL_KEYDOWN) || (e.type == SDL_KEYUP)) &&
                 (e.key.keysym.sym < KEYMAP_SIZE) &&
@@ -219,76 +291,6 @@ void io_loop()
                     pthread_cond_signal(&g_input_cond);
                     pthread_mutex_unlock(&g_input_mutex);
                 }
-            }
-            else if (e.type == SDL_KEYUP)
-            {
-                switch (e.key.keysym.sym)
-                {
-                    case SDLK_SPACE:
-                        /* Pause */
-                        pthread_mutex_lock(&g_input_mutex);
-                        g_pause ^= 1;
-                        pthread_cond_signal(&g_input_cond);
-                        pthread_mutex_unlock(&g_input_mutex);
-                        break;
-                    case SDLK_BACKSPACE:
-                        /* Restart */
-                        pthread_mutex_lock(&g_input_mutex);
-                        g_restart = 1;
-                        pthread_cond_signal(&g_input_cond);
-                        pthread_mutex_unlock(&g_input_mutex);
-                        break;
-                    case SDLK_MINUS:
-                        /* Decrease window size */
-                        if (g_pixel_scale > 16)
-                        {
-                            // Ratio: 3/4
-                            g_pixel_scale *= 3;
-                            g_pixel_scale >>= 2;
-                            SDL_SetWindowSize(
-                                g_window,
-                                g_pixel_scale * DISPLAY_WIDTH,
-                                g_pixel_scale * DISPLAY_HEIGHT
-                            );
-                            SDL_SetWindowPosition(
-                                g_window,
-                                SDL_WINDOWPOS_CENTERED,
-                                SDL_WINDOWPOS_CENTERED
-                            );
-                        }
-                        break;
-                    case SDLK_EQUALS:
-                        /* Increase window size */
-                        if (g_pixel_scale < 120)
-                        {
-                            // Ratio: 5/4
-                            g_pixel_scale *= 5;
-                            g_pixel_scale >>= 2;
-                            SDL_SetWindowSize(
-                                g_window,
-                                g_pixel_scale * DISPLAY_WIDTH,
-                                g_pixel_scale * DISPLAY_HEIGHT
-                            );
-                            SDL_SetWindowPosition(
-                                g_window,
-                                SDL_WINDOWPOS_CENTERED,
-                                SDL_WINDOWPOS_CENTERED
-                            );
-                        }
-                        break;
-                    case SDLK_ESCAPE:
-                        /* Quit */
-                        quit();
-                        return;
-                    default:
-                        break;
-                }
-            }
-            else if (e.type == SDL_QUIT)
-            {
-                /* Quit */
-                quit();
-                return;
             }
         }
     }
