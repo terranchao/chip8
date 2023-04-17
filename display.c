@@ -17,14 +17,17 @@ pthread_cond_t g_display_cond = {0};
 
 static const size_t DISPLAY_WIDTH_MASK = (DISPLAY_WIDTH-1);
 static const size_t DISPLAY_HEIGHT_MASK = (DISPLAY_HEIGHT-1);
-static const uint32_t g_background_color = 0x00000000;
-static const uint32_t g_foreground_color = 0xffffffff;
+uint32_t g_background_color = 0xff000000;
+uint32_t g_foreground_color = 0xffffffff;
 
 void clear_display()
 {
     pthread_mutex_lock(&g_display_mutex);
     pthread_cond_wait(&g_display_cond, &g_display_mutex);
-    memset(g_framebuffer, 0, g_buffer_size);
+    for (size_t i = 0; i < DISPLAY_AREA; i++)
+    {
+        g_framebuffer[i] = g_background_color;
+    }
     pthread_mutex_unlock(&g_display_mutex);
 }
 
@@ -37,7 +40,7 @@ static void draw_pixel(
     size_t offset = (row*DISPLAY_WIDTH + col);
 
     // XOR
-    if (g_framebuffer[offset])
+    if (g_framebuffer[offset] == g_foreground_color)
     {
         g_framebuffer[offset] = g_background_color;
         *collision = 1;

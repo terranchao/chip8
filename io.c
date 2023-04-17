@@ -33,6 +33,7 @@ SDL_Texture *g_texture = NULL;
 uint32_t *g_framebuffer = NULL;
 size_t g_buffer_size = 0;
 size_t g_width_in_bytes = 0;
+const size_t DISPLAY_AREA = (DISPLAY_WIDTH*DISPLAY_HEIGHT);
 
 /* Key input */
 uint8_t *g_keystate = NULL;
@@ -98,7 +99,7 @@ void audio_callback(
 
 void io_init()
 {
-    g_buffer_size = DISPLAY_WIDTH * DISPLAY_HEIGHT * sizeof(uint32_t);
+    g_buffer_size = DISPLAY_AREA * sizeof(uint32_t);
     g_framebuffer = (uint32_t*)malloc(g_buffer_size);
     g_width_in_bytes = DISPLAY_WIDTH * sizeof(uint32_t);
 

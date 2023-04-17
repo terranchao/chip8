@@ -13,5 +13,7 @@ extern uint8_t draw_sprite(
 );
 extern pthread_mutex_t g_display_mutex;
 extern pthread_cond_t g_display_cond;
+extern uint32_t g_background_color;
+extern uint32_t g_foreground_color;
 
 #endif // DISPLAY_H

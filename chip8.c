@@ -660,6 +660,8 @@ void *cpu_fn(__attribute__ ((unused)) void *p)
 
     while (!g_timer_start);
 
+    clear_display();
+
     run(&c8);
 
 #ifdef DEBUG

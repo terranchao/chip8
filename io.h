@@ -14,6 +14,7 @@ extern SDL_Texture *g_texture;
 extern uint32_t *g_framebuffer;
 extern size_t g_buffer_size;
 extern size_t g_width_in_bytes;
+extern const size_t DISPLAY_AREA;
 
 /* Key input */
 extern uint8_t *g_keystate;
