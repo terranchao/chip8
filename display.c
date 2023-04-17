@@ -15,11 +15,10 @@
 pthread_mutex_t g_display_mutex = {0};
 pthread_cond_t g_display_cond = {0};
 
-static const size_t DISPLAY_WIDTH_MASK = 0x3f;  // 63
-static const size_t DISPLAY_HEIGHT_MASK = 0x1f; // 31
-static const size_t SPRITE_WIDTH = 8;
-static const uint32_t COLOR_UNSET = 0x00000000;
-static const uint32_t COLOR_SET = 0xffffffff;
+static const size_t DISPLAY_WIDTH_MASK = (DISPLAY_WIDTH-1);
+static const size_t DISPLAY_HEIGHT_MASK = (DISPLAY_HEIGHT-1);
+static const uint32_t g_background_color = 0x00000000;
+static const uint32_t g_foreground_color = 0xffffffff;
 
 void clear_display()
 {
@@ -40,12 +39,12 @@ static void draw_pixel(
     // XOR
     if (g_framebuffer[offset])
     {
-        g_framebuffer[offset] = COLOR_UNSET;
+        g_framebuffer[offset] = g_background_color;
         *collision = 1;
     }
     else
     {
-        g_framebuffer[offset] = COLOR_SET;
+        g_framebuffer[offset] = g_foreground_color;
     }
 }
 
@@ -67,7 +66,7 @@ uint8_t draw_sprite(
     {
         if ((row+i) > DISPLAY_HEIGHT) break;
         uint8_t line = sprite_address[i];
-        for (size_t j = 0; j < SPRITE_WIDTH; j++)
+        for (size_t j = 0; j < 8; j++)
         {
             if ((col+j) > DISPLAY_WIDTH) break;
             draw_pixel(row+i, col+j, (line & 0x80), &collision);

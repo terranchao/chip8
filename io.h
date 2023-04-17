@@ -5,14 +5,15 @@
 #include <pthread.h>
 #include <stdint.h>
 
+#define DISPLAY_WIDTH   64
+#define DISPLAY_HEIGHT  32
+
 /* Display */
 extern SDL_Renderer *g_renderer;
 extern SDL_Texture *g_texture;
 extern uint32_t *g_framebuffer;
 extern size_t g_buffer_size;
 extern size_t g_width_in_bytes;
-extern const size_t DISPLAY_WIDTH;
-extern const size_t DISPLAY_HEIGHT;
 
 /* Key input */
 extern uint8_t *g_keystate;

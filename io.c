@@ -33,8 +33,6 @@ SDL_Texture *g_texture = NULL;
 uint32_t *g_framebuffer = NULL;
 size_t g_buffer_size = 0;
 size_t g_width_in_bytes = 0;
-const size_t DISPLAY_WIDTH = 64;
-const size_t DISPLAY_HEIGHT = 32;
 
 /* Key input */
 uint8_t *g_keystate = NULL;
@@ -85,7 +83,7 @@ void audio_callback(
     int num_bytes
 )
 {
-    float *fstream = (float*)(stream);
+    float *fstream = (float*)stream;
     size_t num_samples = (num_bytes/8); // each sample is two 32-bit floats
     for(size_t i = 0; i < num_samples; ++i)
     {
