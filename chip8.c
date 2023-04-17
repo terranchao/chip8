@@ -588,17 +588,6 @@ static void process_ui_controls(chip8_t *c8, const uint16_t instruction)
     uint8_t in_restart = 0;
     uint8_t in_pause = 0;
 
-    if (g_pause)
-    {
-        draw_pause_icon();
-        if ((instruction & 0xf0ff) == 0xf00a)
-        {
-            // If a pause interrupts a wait for a keypress, redo it.
-            c8->program_counter -= 2;
-        }
-        in_pause = 1;
-    }
-
     while (!g_io_done)
     {
         if (g_restart)
@@ -607,7 +596,20 @@ static void process_ui_controls(chip8_t *c8, const uint16_t instruction)
             in_restart ^= 1;
             g_restart = 0;
         }
-        if (!g_pause)
+
+        if (g_pause)
+        {
+            if (in_pause) continue;
+
+            draw_pause_icon();
+            if ((instruction & 0xf0ff) == 0xf00a)
+            {
+                // If a pause interrupts a wait for a keypress, redo it.
+                c8->program_counter -= 2;
+            }
+            in_pause = 1;
+        }
+        else
         {
             if (in_restart)
             {
