@@ -11,6 +11,8 @@ extern uint8_t draw_sprite(
     const uint8_t *sprite_address,
     const size_t sprite_size
 );
+extern void draw_pause_icon();
+extern void draw_restart_icon();
 extern pthread_mutex_t g_display_mutex;
 extern pthread_cond_t g_display_cond;
 extern uint32_t g_background_color;
