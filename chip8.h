@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define MEMORY_SIZE 0x1000  // 4KB (4096 bytes)
-#ifdef CHIP8
+#ifdef COSMAC_VIP
 #define STACK_SIZE 12
 #else
 #define STACK_SIZE 16

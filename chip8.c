@@ -194,7 +194,7 @@ static void execute_8xy5(chip8_t *c8, const uint16_t instruction)
 
 static void execute_8xy6(chip8_t *c8, const uint16_t instruction)
 {
-#ifdef CHIP8
+#ifdef COSMAC_VIP
     // Vx = (Vy >>= 1)
     const uint8_t y = ((instruction & 0x00f0) >> 4);
     const uint8_t flag = (c8->V[y] & 0x01);
@@ -221,7 +221,7 @@ static void execute_8xy7(chip8_t *c8, const uint16_t instruction)
 
 static void execute_8xye(chip8_t *c8, const uint16_t instruction)
 {
-#ifdef CHIP8
+#ifdef COSMAC_VIP
     // Vx = (Vy <<= 1)
     const uint8_t y = ((instruction & 0x00f0) >> 4);
     const uint8_t flag = ((c8->V[y] & 0x80) >> 7);
@@ -281,7 +281,7 @@ static void execute_annn(chip8_t *c8, const uint16_t instruction)
 
 static void execute_bnnn(chip8_t *c8, const uint16_t instruction)
 {
-#ifdef CHIP8
+#ifdef COSMAC_VIP
     // Jump to address + V0
     const uint16_t address = c8->V[0x0] + (instruction & 0x0fff);
 #else
