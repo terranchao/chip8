@@ -23,7 +23,9 @@ used by CHIP-8 programs that ran on the
 
 ### Display and Sound
 
+Demo: Breakout (1997)
 
+https://user-images.githubusercontent.com/5587757/232962506-a63e0332-f7ac-4fa0-bd85-3aaa520bdab4.mp4
 
 ### User Input
 
@@ -165,7 +167,7 @@ features.
 
 ### ROMs
 
-https://github.com/Timendus/chip8-test-suite
+[<img src="https://user-images.githubusercontent.com/5587757/232945003-606aac05-af2a-4eef-9443-4f2ca1690981.png"/>](https://github.com/Timendus/chip8-test-suite)
 
 ### Games
 
