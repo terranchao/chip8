@@ -67,11 +67,11 @@ uint8_t draw_sprite(
     pthread_cond_wait(&g_display_cond, &g_display_mutex);
     for (size_t i = 0; i < sprite_height; i++)
     {
-        if ((row+i) > DISPLAY_HEIGHT) break;
+        if ((row+i) > DISPLAY_HEIGHT_MASK) break;
         uint8_t line = sprite_address[i];
         for (size_t j = 0; j < 8; j++)
         {
-            if ((col+j) > DISPLAY_WIDTH) break;
+            if ((col+j) > DISPLAY_WIDTH_MASK) break;
             draw_pixel(row+i, col+j, (line & 0x80), &collision);
             line <<= 1;
         }
