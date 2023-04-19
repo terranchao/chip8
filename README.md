@@ -27,6 +27,21 @@ Demo: Breakout (1997)
 
 https://user-images.githubusercontent.com/5587757/232962506-a63e0332-f7ac-4fa0-bd85-3aaa520bdab4.mp4
 
+### Color customization (Optional)
+
+Before the application window opens, the user has a chance to customize the
+display with their own color codes in the command line.
+
+Example: McDonald's
+
+```
+Enter 'y' for colors: y
+Background > da291c
+Background color set to #DA291C
+Foreground > ffcc00
+Foreground color set to #FFCC00
+```
+
 ### User Input
 
 The user is able to provide keyboard input to the interpreter using a virtual
@@ -146,21 +161,6 @@ features.
     following and retrying. This must be done once per shell instance.
     ```bash
     $ export LIBGL_ALWAYS_SOFTWARE=1
-    ```
-
-5. **Choose your own colors** (Optional)
-
-    Before the application window opens, the user has a chance to customize the
-    display with their own color codes, right in the command line.
-
-    Example: McDonald's
-
-    ```
-    Enter 'y' for colors: y
-    Background > da291c
-    Background color set to #DA291C
-    Foreground > ffcc00
-    Foreground color set to #FFCC00
     ```
 
 ## Testing
