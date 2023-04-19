@@ -3,10 +3,10 @@
 
 ## Introduction
 
-[CHIP_8](https://en.wikipedia.org/wiki/CHIP-8) is a *low-level programming
-language* that was developed back in the 1970s. It was first used as a game
-development medium for microcomputers, but it remains popular with programmer
-hobbyists and retro-game enthusiasts to this day.
+[CHIP-8](https://en.wikipedia.org/wiki/CHIP-8) is a low-level programming
+language that was developed back in the 1970s. It was first used as a game
+development medium for the microcomputers of its day, but it remains popular
+with programmer hobbyists and retro-game enthusiasts to this day.
 
 A CHIP-8 program must run on a software platform that is capable of interpreting
 the CHIP-8 programming language, which comes in the form of a simple instruction
@@ -15,7 +15,54 @@ is technically meant to mimic a specific hardware model — and since CHIP-8 doe
 not describe any physical device — let us refer to this platform as a **virtual
 machine** or simply an **interpreter**, which is what this project implements.
 
-## Environment
+This CHIP-8 interpreter aims to follow the original conventions of the language,
+used by CHIP-8 programs that ran on the
+[COSMAC VIP](https://en.wikipedia.org/wiki/COSMAC_VIP).
+
+## Features
+
+### Display and Sound
+
+
+
+### User Input
+
+The user is able to provide keyboard input to the interpreter using a virtual
+key mapping:
+
+```
+QWERTY      ->      CHIP-8
+
+1 2 3 4             1 2 3 C
+Q W E R             4 5 6 D
+A S D F             7 8 9 E
+Z X C V             A 0 B F
+```
+
+### Additional User Interface
+
+- <kbd>-</kbd>/<kbd>=</kbd> - Change window size
+- <kbd>Esc</kbd> - Quit interpreter
+- <kbd>Space</kbd> - Pause program
+- <kbd>Backspace</kbd> - Restart program (request is toggleable during pause)
+
+### Multithreading
+
+The decision for multithreading is in an attempt to simulate operation that is
+closer in concept to that of the COSMAC VIP.
+
+- The COSMAC VIP comes equipped with a
+[physical keypad](https://laurencescotford.com/chip-8-on-the-cosmac-vip-keyboard-input/),
+so the interpreter runs a dedicated I/O thread that is able to detect user
+input outside of the main program thread, just as a keyboard is able to do.
+- The COSMAC VIP's
+[interrupt system](https://laurencescotford.com/chip-8-on-the-cosmac-vip-interrupts/)
+is responsible for refreshing the display and decrementing the system timers at
+a rate of 60Hz. The interpreter implements this system by spawning a dedicated
+timer thread that performs these tasks at the required frequency with precision,
+also separate from the main program thread.
+
+## Development Notes
 
 - Written in C, built with CMake (GCC)
 
@@ -47,27 +94,27 @@ automatically come with [WSLg](https://github.com/microsoft/wslg),
 which allows GUI applications in WSL (like those based on SDL) to run directly
 on Windows, no X server required.
 
-## Command-line Usage
+## Usage
 
 **Note:** At the moment, these instructions are catered to Linux/WSL users. WSL
 users must make sure their version of WSL is new enough to support WSLg
 features.
 
-1. Install dependencies
+1. **Install dependencies**
 
-    On Debian systems:
+    On Debian systems
     ```bash
     sudo apt update
     sudo apt install build-essential cmake libsdl2-dev
     ```
 
-2. Download
+2. **Download**
 
     ```bash
     git clone https://github.com/terranchao/chip8.git
     ```
 
-3. Build
+3. **Build**
 
     ```bash
     cd chip8
@@ -82,35 +129,36 @@ features.
     rm -rf build
     ```
 
-4. Run
+4. **Run**
 
     The user should provide a `ROM` argument to the interpreter. This argument
     should be the filename of a valid CHIP-8 program file. CHIP-8 program files
-    come in binary format, and usually have a designated .ch8 file extension.
+    come in binary format, and usually have designated .ch8 file extensions.
     ```bash
     ./chip8 ROM
     ```
 
     There is a known WSLg-SDL compatibility
     [issue](https://github.com/microsoft/wslg/issues/715) that causes a
-    segmentation fault. If a segmentation fault occurs, try exporting the
-    following environment variable and retrying. This must be done once per
-    shell instance.
+    segmentation fault. If a segmentation fault occurs, try running the
+    following and retrying. This must be done once per shell instance.
     ```bash
     $ export LIBGL_ALWAYS_SOFTWARE=1
     ```
 
-5. Input
+5. **Choose your own colors** (Optional)
 
-    Once the application is up and running, the user is able to provide keyboard
-    input to the interpreter using the following virtual key mapping:
+    Before the application window opens, the user has a chance to customize the
+    display with their own color codes, right in the command line.
+
+    Example: McDonald's
+
     ```
-    QWERTY      ->      CHIP-8
-    
-    1 2 3 4             1 2 3 C
-    Q W E R             4 5 6 D
-    A S D F             7 8 9 E
-    Z X C V             A 0 B F
+    Enter 'y' for colors: y
+    Background > da291c
+    Background color set to #DA291C
+    Foreground > ffcc00
+    Foreground color set to #FFCC00
     ```
 
 ## Testing
@@ -118,10 +166,6 @@ features.
 ### ROMs
 
 https://github.com/Timendus/chip8-test-suite
-
-This interpreter follows as closely as possible the "quirks" of the original
-CHIP-8 variant that ran on the
-[COSMAC VIP](https://en.wikipedia.org/wiki/COSMAC_VIP).
 
 ### Games
 
@@ -133,7 +177,7 @@ TODO
 
 ## References
 
-Many excellent guides were referenced for conceptual accuracy:
+Many excellent guides were referenced for this project:
 
 - https://austinmorlan.com/posts/chip8_emulator/
 - http://devernay.free.fr/hacks/chip8/C8TECH10.HTM

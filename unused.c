@@ -1,5 +1,6 @@
 /*
- * This code was once used to test draw functions and timing.
+ * This code is not compiled - it was once used to test draw functions and
+ * timing.
  */
 #include <stdint.h>
 #include <stdio.h>
@@ -10,11 +11,10 @@
 
 void benchmark_render(
     const size_t iterations,
-    struct timespec *before,
-    struct timespec *after,
     const char *target_name
 )
 {
+    struct timespec before, after;
     for (size_t i = 0; i < iterations; i++)
     {
         clock_gettime(clock_id, before);
@@ -31,13 +31,12 @@ void benchmark_render(
 
 void benchmark_draw_sprite(
     const size_t iterations,
-    struct timespec *before,
-    struct timespec *after,
     const uint8_t *sprite_address,
     const size_t sprite_height,
     const char *target_name
 )
 {
+    struct timespec before, after;
     for (size_t i = 0; i < iterations; i++)
     {
         clear_display();
@@ -56,8 +55,6 @@ void benchmark_draw_sprite(
 void test_draw()
 {
     uint8_t collision;
-    struct timespec before, after;
-
     for (size_t i = 0; i < DISPLAY_HEIGHT; i++)
     {
         for (size_t j = 0; j < DISPLAY_WIDTH; j++)
@@ -65,20 +62,20 @@ void test_draw()
             draw_pixel(i, j, ((i+j)%2), &collision);
         }
     }
-    benchmark_render(40, &before, &after, "Grid");
+    benchmark_render(40, "Grid");
 
-    uint8_t sprite[] = {
+    const uint8_t sprite[] = {
         0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80,
         0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01, 0x02,
         0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x40, 0x20,
         0x10, 0x08, 0x04, 0x02, 0x01, 0x02, 0x04, 0x08,
     };
     benchmark_draw_sprite(
-        20, &before, &after, sprite, sizeof(sprite), "Sprite"
+        20, sprite, sizeof(sprite), "Sprite"
     );
-    benchmark_render(20, &before, &after, "Sprite");
+    benchmark_render(20, "Sprite");
 
-    uint8_t invert[] = {
+    const uint8_t invert[] = {
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
