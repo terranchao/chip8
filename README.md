@@ -165,9 +165,9 @@ features.
 
 ## Testing
 
-### ROMs
+### Test ROMs
 
-[<img src="https://user-images.githubusercontent.com/5587757/232945003-606aac05-af2a-4eef-9443-4f2ca1690981.png"/>](https://github.com/Timendus/chip8-test-suite)
+[<img src="https://user-images.githubusercontent.com/5587757/233194262-dff359aa-6ed8-4541-b15a-68e8b0fde6c0.png"/>](https://github.com/Timendus/chip8-test-suite)
 
 ### Games
 
