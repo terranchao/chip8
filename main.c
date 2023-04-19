@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #include "chip8.h"
-#include "display.h"
+#include "draw.h"
 #include "io.h"
 #include "load.h"
 #include "timer.h"

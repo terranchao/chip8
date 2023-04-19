@@ -15,7 +15,7 @@
 #include <time.h>
 
 #include "chip8.h"
-#include "display.h"
+#include "draw.h"
 #include "io.h"
 #include "timer.h"
 

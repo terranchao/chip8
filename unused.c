@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "display.h"
+#include "draw.h"
 #include "timer.h"
 
 void benchmark_render(

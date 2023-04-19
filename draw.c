@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "display.h"
+#include "draw.h"
 #include "io.h"
 
 pthread_mutex_t g_display_mutex = {0};

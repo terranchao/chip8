@@ -1,5 +1,5 @@
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#ifndef DRAW_H
+#define DRAW_H
 
 #include <pthread.h>
 #include <stdint.h>
@@ -16,4 +16,4 @@ extern pthread_cond_t g_display_cond;
 extern uint32_t g_background_color;
 extern uint32_t g_foreground_color;
 
-#endif // DISPLAY_H
+#endif // DRAW_H
