@@ -42,6 +42,11 @@ static void undefined_instruction(chip8_t *c8, const uint16_t instruction)
     );
 }
 
+static inline void advance_program_counter(chip8_t *c8)
+{
+    c8->program_counter += 2;
+}
+
 static void execute_0nnn(chip8_t *c8, const uint16_t instruction)
 {
 #ifdef LEGACY
@@ -111,7 +116,7 @@ static void execute_3xnn(chip8_t *c8, const uint16_t instruction)
     // Skip next instruction if Vx == byte
     if (c8->V[(instruction & 0x0f00) >> 8] == (instruction & 0x00ff))
     {
-        c8->program_counter += 2;
+        advance_program_counter(c8);
     }
 }
 
@@ -120,7 +125,7 @@ static void execute_4xnn(chip8_t *c8, const uint16_t instruction)
     // Skip next instruction if Vx != byte
     if (c8->V[(instruction & 0x0f00) >> 8] != (instruction & 0x00ff))
     {
-        c8->program_counter += 2;
+        advance_program_counter(c8);
     }
 }
 
@@ -131,7 +136,7 @@ static void execute_5xy0(chip8_t *c8, const uint16_t instruction)
         c8->V[(instruction & 0x0f00) >> 8] == c8->V[(instruction & 0x00f0) >> 4]
     )
     {
-        c8->program_counter += 2;
+        advance_program_counter(c8);
     }
 }
 
@@ -269,7 +274,7 @@ static void execute_9xy0(chip8_t *c8, const uint16_t instruction)
         c8->V[(instruction & 0x0f00) >> 8] != c8->V[(instruction & 0x00f0) >> 4]
     )
     {
-        c8->program_counter += 2;
+        advance_program_counter(c8);
     }
 }
 
@@ -323,7 +328,7 @@ static void execute_ex9e(chip8_t *c8, const uint16_t instruction)
     }
     if (g_keystate[g_keymap[c8->V[(instruction & 0x0f00) >> 8]]])
     {
-        c8->program_counter += 2;
+        advance_program_counter(c8);
     }
 }
 
@@ -336,7 +341,7 @@ static void execute_exa1(chip8_t *c8, const uint16_t instruction)
     }
     if (!g_keystate[g_keymap[c8->V[(instruction & 0x0f00) >> 8]]])
     {
-        c8->program_counter += 2;
+        advance_program_counter(c8);
     }
 }
 
@@ -623,8 +628,7 @@ static void run(chip8_t *c8)
         printf("MEM[0x%03x]: 0x%04x\n", c8->program_counter, instruction);
 #endif
 
-        // Advance program counter
-        c8->program_counter += 2;
+        advance_program_counter(c8);
 
         // Decode/Execute
         (g_execute[(instruction & 0xf000) >> 12])(c8, instruction);
