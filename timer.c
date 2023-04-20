@@ -44,7 +44,9 @@ static void update_timers()
 {
     pthread_mutex_lock(&g_timer_mutex);
     if (g_delay_timer > 0)
+    {
         g_delay_timer--;
+    }
     if (g_sound_timer > 0)
     {
         SDL_PauseAudioDevice(g_audio_device_id, 0);

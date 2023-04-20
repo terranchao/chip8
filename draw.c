@@ -15,10 +15,11 @@
 pthread_mutex_t g_display_mutex = {0};
 pthread_cond_t g_display_cond = {0};
 
-static const size_t DISPLAY_WIDTH_MASK = (DISPLAY_WIDTH-1);
-static const size_t DISPLAY_HEIGHT_MASK = (DISPLAY_HEIGHT-1);
 uint32_t g_background_color = 0xff000000;
 uint32_t g_foreground_color = 0xffffffff;
+
+static const size_t DISPLAY_WIDTH_MASK = (DISPLAY_WIDTH-1);
+static const size_t DISPLAY_HEIGHT_MASK = (DISPLAY_HEIGHT-1);
 
 void clear_display()
 {
@@ -37,7 +38,7 @@ static void draw_pixel(
 {
     if (!is_set) return;
 
-    size_t offset = (row*DISPLAY_WIDTH + col);
+    const size_t offset = (row*DISPLAY_WIDTH + col);
 
     // XOR
     if (g_framebuffer[offset] == g_foreground_color)

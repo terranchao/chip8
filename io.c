@@ -78,7 +78,7 @@ static void handle_sdl_fatal(const char *message)
     exit(EXIT_FAILURE);
 }
 
-void audio_callback(
+static void audio_callback(
     __attribute__ ((unused)) void *user_data,
     uint8_t *stream,
     int num_bytes
@@ -107,6 +107,7 @@ void io_init()
     {
         handle_sdl_fatal("Unable to initialize");
     }
+
     g_window = SDL_CreateWindow(
         "A CHIP-8 Interpreter",
         SDL_WINDOWPOS_CENTERED,
@@ -119,6 +120,7 @@ void io_init()
     {
         handle_sdl_fatal("Unable to create window");
     }
+
     g_renderer = SDL_CreateRenderer(
         g_window,
         -1,
@@ -128,6 +130,7 @@ void io_init()
     {
         handle_sdl_fatal("Unable to create renderer");
     }
+
     g_texture = SDL_CreateTexture(
         g_renderer,
         SDL_PIXELFORMAT_ARGB8888 , // fast

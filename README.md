@@ -27,7 +27,7 @@ Demo: Breakout (1997)
 
 https://user-images.githubusercontent.com/5587757/232962506-a63e0332-f7ac-4fa0-bd85-3aaa520bdab4.mp4
 
-### Color customization (Optional)
+### Color customization
 
 Before the application window opens, the user has a chance to customize the
 display with their own color codes in the command line.
@@ -87,7 +87,7 @@ also separate from the main program thread.
 [WSL (Windows Subsystem for Linux)](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux)
 Version 2. Here is some version information from the time of this writing:
 
-    ```bash
+    ```
     $ wsl.exe -l -v
       NAME            STATE           VERSION
     * Ubuntu-22.04    Running         2

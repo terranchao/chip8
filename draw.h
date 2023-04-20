@@ -4,6 +4,11 @@
 #include <pthread.h>
 #include <stdint.h>
 
+extern pthread_mutex_t g_display_mutex;
+extern pthread_cond_t g_display_cond;
+extern uint32_t g_background_color;
+extern uint32_t g_foreground_color;
+
 extern void clear_display();
 extern uint8_t draw_sprite(
     size_t row,
@@ -13,9 +18,5 @@ extern uint8_t draw_sprite(
 );
 extern void draw_pause_icon();
 extern void draw_restart_icon();
-extern pthread_mutex_t g_display_mutex;
-extern pthread_cond_t g_display_cond;
-extern uint32_t g_background_color;
-extern uint32_t g_foreground_color;
 
 #endif // DRAW_H
