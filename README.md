@@ -25,7 +25,7 @@ used by CHIP-8 programs that ran on the
 
 Demo: Breakout (1997)
 
-https://user-images.githubusercontent.com/5587757/232962506-a63e0332-f7ac-4fa0-bd85-3aaa520bdab4.mp4
+https://user-images.githubusercontent.com/5587757/234469067-65a1057a-a51f-4344-89a3-95f3e9efbf78.mp4
 
 ### Color customization
 
