@@ -13,6 +13,7 @@
 #include "draw.h"
 #include "io.h"
 #include "load.h"
+#include "terminal.h"
 #include "timer.h"
 
 volatile uint8_t g_cpu_done = 0;
@@ -602,6 +603,7 @@ static void process_ui_controls(chip8_t *c8, const uint16_t instruction)
             {
                 reset(c8);
                 clear_display();
+                clear_terminal();
             }
             else if (in_pause)
             {
@@ -624,9 +626,7 @@ static void run(chip8_t *c8)
             (c8->memory[c8->program_counter] << 8) |
             c8->memory[c8->program_counter+1];
 
-#ifdef DEBUG
-        printf("MEM[0x%03x]: 0x%04x\n", c8->program_counter, instruction);
-#endif
+        write_registers_to_terminal(c8, instruction);
 
         advance_program_counter(c8);
 
@@ -648,7 +648,11 @@ void *cpu_fn(__attribute__ ((unused)) void *p)
 
     clear_display();
 
+    init_terminal();
+
     run(&c8);
+
+    quit_terminal();
 
 #ifdef DEBUG
     printf("%s exit\n", __func__);

@@ -42,6 +42,11 @@ Foreground > ffcc00
 Foreground color set to #FFCC00
 ```
 
+### Register monitor
+
+CHIP-8 register values are written to the terminal screen in real time, using
+the [ncurses](https://en.wikipedia.org/wiki/Ncurses) library.
+
 ### User Input
 
 The user is able to provide keyboard input to the interpreter using a virtual
@@ -66,7 +71,8 @@ Z X C V             A 0 B F
 ### Multithreading
 
 The decision for multithreading is in an attempt to simulate operation that is
-closer in concept to that of the COSMAC VIP.
+closer in concept to that of the COSMAC VIP. This interpreter uses
+[POSIX threads](https://en.wikipedia.org/wiki/Pthreads).
 
 - The COSMAC VIP comes equipped with a
 [physical keypad](https://laurencescotford.com/chip-8-on-the-cosmac-vip-keyboard-input/),
@@ -122,7 +128,7 @@ features.
     On Debian systems
     ```bash
     sudo apt update
-    sudo apt install build-essential cmake libsdl2-dev
+    sudo apt install build-essential cmake libncurses-dev libsdl2-dev
     ```
 
 2. **Download**

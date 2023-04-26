@@ -81,7 +81,7 @@ void *timer_fn(__attribute__ ((unused)) void *p)
             (before.tv_nsec - after.tv_nsec); // (period - elapsed)
         sleep.tv_sec = (remaining_ns / 1000000000);
         sleep.tv_nsec = (remaining_ns % 1000000000);
-#ifdef DEBUG
+#if 0
         printf("Remaining: %ld ns\n", remaining_ns);
 #endif
         nanosleep(&sleep, NULL);

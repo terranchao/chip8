@@ -13,12 +13,14 @@ add_executable(chip8
     io.c
     load.c
     main.c
+    terminal.c
     timer.c
 )
 
 target_link_libraries(chip8
     -lSDL2
     -lm
+    -lncurses
 )
 
 target_compile_options(chip8
