@@ -194,7 +194,6 @@ void io_loop()
         0xff, 0x04, 0x0d, 0x08, 0xff, 0xff, 0x0f, 0x05,
         0x00, 0xff, 0x0a,
     };
-    const int32_t KEYMAP_SIZE = sizeof(keymap);
 
     while (1)
     {
@@ -275,7 +274,7 @@ void io_loop()
 
             if (
                 ((e.type == SDL_KEYDOWN) || (e.type == SDL_KEYUP)) &&
-                (e.key.keysym.sym < KEYMAP_SIZE) &&
+                (e.key.keysym.sym < (int32_t)sizeof(keymap)) &&
                 (keymap[e.key.keysym.sym] < 16)
             )
             {

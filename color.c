@@ -60,7 +60,6 @@ static const char *INVALID_HEX_CODE = "Invalid hex code. Try again!";
 static void change_color(const char *which, uint32_t *color_address)
 {
     char color_str[10] = {0};
-    const size_t COLOR_SIZE = sizeof(color_str);
     int lf_index;
     uint32_t color;
     while (1)
@@ -68,8 +67,8 @@ static void change_color(const char *which, uint32_t *color_address)
         printf("%s > ", which);
 
         if (
-            (fgets(color_str, COLOR_SIZE, stdin) == NULL) ||
-            ((lf_index = get_lf_index(color_str, COLOR_SIZE)) < 0)
+            (fgets(color_str, sizeof(color_str), stdin) == NULL) ||
+            ((lf_index = get_lf_index(color_str, sizeof(color_str))) < 0)
         )
         {
             printf("%s\n", INVALID_HEX_CODE);
@@ -88,7 +87,7 @@ static void change_color(const char *which, uint32_t *color_address)
         }
 
         color_str[lf_index] = '\0';
-        if (!is_hex(color_str, COLOR_SIZE, lf_index))
+        if (!is_hex(color_str, sizeof(color_str), lf_index))
         {
             printf("%s\n", INVALID_HEX_CODE);
             continue;

@@ -49,12 +49,12 @@ static void update_timers()
     }
     if (g_sound_timer > 0)
     {
-        SDL_PauseAudioDevice(g_audio_device_id, 0);
+        SDL_PauseAudioDevice(g_audio_device_id, 0); // play tone
         g_sound_timer--;
     }
     else
     {
-        SDL_PauseAudioDevice(g_audio_device_id, 1);
+        SDL_PauseAudioDevice(g_audio_device_id, 1); // mute tone
     }
     pthread_mutex_unlock(&g_timer_mutex);
 }

@@ -82,17 +82,15 @@ uint8_t draw_sprite(
 static const uint8_t pause_icon[] = {
     0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc
 };
-static const size_t PAUSE_ICON_SIZE = sizeof(pause_icon);
 inline void draw_pause_icon()
 {
-    draw_sprite(12, 29, pause_icon, PAUSE_ICON_SIZE);
+    draw_sprite(12, 29, pause_icon, sizeof(pause_icon));
 }
 
 static const uint8_t restart_icon[] = {
     0x00, 0x08, 0x18, 0x3f, 0x7f, 0x3f, 0x18, 0x08
 };
-static const size_t RESTART_ICON_SIZE = sizeof(restart_icon);
 inline void draw_restart_icon()
 {
-    draw_sprite(0, 0, restart_icon, RESTART_ICON_SIZE);
+    draw_sprite(0, 0, restart_icon, sizeof(restart_icon));
 }
