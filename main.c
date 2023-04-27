@@ -131,12 +131,14 @@ int main(int argc, char *argv[])
     pthread_mutex_init(&g_display_mutex, NULL);
     pthread_mutex_init(&g_input_mutex, NULL);
     pthread_mutex_init(&g_timer_mutex, NULL);
+    pthread_cond_init(&g_display_cond, NULL);
     pthread_cond_init(&g_input_cond, NULL);
     pthread_create(&t1, NULL, timer_fn, NULL);
     pthread_create(&t2, NULL, cpu_fn, NULL);
     io_loop();
     pthread_join(t1, NULL);
     pthread_join(t2, NULL);
+    pthread_cond_destroy(&g_display_cond);
     pthread_cond_destroy(&g_input_cond);
     pthread_mutex_destroy(&g_display_mutex);
     pthread_mutex_destroy(&g_input_mutex);
