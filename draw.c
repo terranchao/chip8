@@ -9,14 +9,12 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "color.h"
 #include "draw.h"
 #include "io.h"
 
 pthread_mutex_t g_display_mutex = {0};
 pthread_cond_t g_display_cond = {0};
-
-uint32_t g_background_color = 0xff000000;
-uint32_t g_foreground_color = 0xffffffff;
 
 static const size_t DISPLAY_WIDTH_MASK = (DISPLAY_WIDTH-1);
 static const size_t DISPLAY_HEIGHT_MASK = (DISPLAY_HEIGHT-1);

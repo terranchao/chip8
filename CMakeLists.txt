@@ -9,6 +9,7 @@ endif()
 
 add_executable(chip8
     chip8.c
+    color.c
     draw.c
     io.c
     load.c
