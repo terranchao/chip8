@@ -17,14 +17,14 @@ void benchmark_render(
     struct timespec before, after;
     for (size_t i = 0; i < iterations; i++)
     {
-        clock_gettime(clock_id, before);
+        clock_gettime(clock_id, &before);
         update_display();
-        clock_gettime(clock_id, after);
+        clock_gettime(clock_id, &after);
         printf(
             "%s render time: %ld ns\n",
             target_name,
-            ((after->tv_sec - before->tv_sec) * 1000000000 +
-            (after->tv_nsec - before->tv_nsec))
+            ((after.tv_sec - before.tv_sec) * 1000000000 +
+            (after.tv_nsec - before.tv_nsec))
         );
     }
 }
@@ -40,14 +40,14 @@ void benchmark_draw_sprite(
     for (size_t i = 0; i < iterations; i++)
     {
         clear_display();
-        clock_gettime(clock_id, before);
+        clock_gettime(clock_id, &before);
         draw_sprite(0, 0, sprite_address, sprite_height);
-        clock_gettime(clock_id, after);
+        clock_gettime(clock_id, &after);
         printf(
             "%s draw time: %ld ns\n",
             target_name,
-            ((after->tv_sec - before->tv_sec) * 1000000000 +
-            (after->tv_nsec - before->tv_nsec))
+            ((after.tv_sec - before.tv_sec) * 1000000000 +
+            (after.tv_nsec - before.tv_nsec))
         );
     }
 }
