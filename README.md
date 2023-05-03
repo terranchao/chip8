@@ -141,15 +141,8 @@ features.
 
     ```bash
     cd chip8
-
-    # CMake sequence
-    mkdir build     && \
-    pushd build     && \
-        cmake ..    && \
-        make        && \
-        cp chip8 .. && \
-    popd            && \
-    rm -rf build
+    cmake -B build
+    cmake --build build
     ```
 
 4. **Run**
@@ -158,7 +151,7 @@ features.
     should be the filename of a valid CHIP-8 program file. CHIP-8 program files
     come in binary format, and usually have designated .ch8 file extensions.
     ```bash
-    ./chip8 ROM
+    ./build/chip8 ROM
     ```
 
     There is a known WSLg-SDL compatibility
